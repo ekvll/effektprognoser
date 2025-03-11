@@ -1,0 +1,20 @@
+[project]
+name = "effektprognoser"
+version = "0.1.0"
+description = "Effektprognoser"
+requires-python = ">=3.10"
+dependencies = [
+"pandas",
+"matplotlib",
+"geopandas",
+]
+
+[project.scripts]
+ep = "effektprognoser.cli:main"
+
+[tool.setuptools]
+packages = ["effektprognoser"]
+
+[build-system]
+requires = ["setuptools>=42.0", "wheel"]
+build-backend = "setuptools.build_meta"
