@@ -9,7 +9,7 @@ from effektprognoser.sql.utils import (
     filter_tables,
     gen_db_path_local,
 )
-from effektprognoser.qc import QCPipelines
+from .pipelines import QCPipelines
 
 
 def main(regions):
@@ -26,5 +26,5 @@ def main(regions):
                 input_filepath = os.path.join(input_path, file)
                 df = gpd.read_parquet(input_filepath)
 
-                qc = QCPipelines(df, file)
+                qc = QCPipelines(df, file, region)
                 qc.qc_lp()

@@ -3,11 +3,18 @@ import argparse
 from .table_to_csv.app import main as table_to_csv
 from .csv_to_excel.app import main as csv_to_excel
 from .csv_to_category.app import main as csv_to_category
-from .regions import get_regions
-from .rut_id.app import main as rut_id
-from .anomalies.app import main as anomalies
+from .qc.app import main as qc
+from .plot_rutid.app import main as plot_rutid
 
 VERSION = "0.1.0"
+
+
+def get_regions(regions):
+    if regions == "all":
+        return ["06", "07", "08", "10", "12", "13"]
+    if not isinstance(regions, list):
+        return [regions]
+    return regions
 
 
 def main():
@@ -42,24 +49,20 @@ def main():
     )
     parser3.add_argument("--region", help="Which region shall be matched?")
 
-    parser4 = subparser.add_parser(
-        "view-square",
-        help="View all data associated with a square",
-    )
-    parser4.add_argument("--region", help="Which region does the square belong to?")
-
-    # Sub-parser for analysing data per rut id
-    parser5 = subparser.add_parser(
-        "rut-id", help="Get a plot of all data associated with a rut ID"
-    )
-    parser5.add_argument(
+    # Sub-parser for performing quality check
+    parser_qc = subparser.add_parser("qc", help="Perform quality check per region.")
+    parser_qc.add_argument(
         "--region", help="Which region contain the rut ID of interest?"
     )
-    parser5.add_argument("--id", help="Which rut ID to plot?")
 
-    # Sub-parser for analysing data for anomalies
-    parser6 = subparser.add_parser("anomalies", help="Analyze data for anomalies")
-    parser6.add_argument("--region", help="Which region to look for anomalies")
+    # Sub-parser for plotting a single rut id
+    parser_plot_rutid = subparser.add_parser(
+        "plot-rutid", help="Plot data associated with a single rut ID"
+    )
+    parser_plot_rutid.add_argument(
+        "--region", help="Which region contain the rut ID of interest?"
+    )
+    parser_plot_rutid.add_argument("--rutid", help="The rut ID of interest")
 
     # Store parser arguments
     args = parser.parse_args()
@@ -74,7 +77,7 @@ def main():
         csv_to_excel(regions)
     elif args.command == "csv2category":
         csv_to_category(regions)
-    elif args.command == "rut-id":
-        rut_id(args.region, args.id)
-    elif args.command == "anomalies":
-        anomalies(regions)
+    elif args.command == "qc":
+        qc(regions)
+    elif args.command == "plot-rutid":
+        plot_rutid(args.region, args.rutid)
