@@ -9,12 +9,20 @@ logging.basicConfig(
 )
 
 
-def log_issue(log_msg):
-    print(log_msg)
+def log_issue(log_msg: list[str]) -> None:
+    """
+    Append log file with log messages (issues).
+    Log filepath is os.path.join(LOG_DIR, "qc_log.csv").
 
+    Args:
+    log_msg (list[str]): List of strings. The length of the list object need to be 4. Each entry in the list object correspond to a specific column in the log file.
+
+    Returns:
+    None.
+    """
     if not len(log_msg) == 4:
         raise ValueError(
-            "log_msg need to contain 'table', 'column', 'rid' and 'comment'"
+            f"log_msg need to contain 'table', 'column', 'rid' and 'comment' ({log_msg})"
         )
     str_obj = ", ".join(log_msg)
     logging.info(str_obj)
