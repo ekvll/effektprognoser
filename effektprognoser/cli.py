@@ -5,6 +5,7 @@ from .csv_to_excel.app import main as csv_to_excel
 from .csv_to_category.app import main as csv_to_category
 from .regions import get_regions
 from .rut_id.app import main as rut_id
+from .anomalies.app import main as anomalies
 
 VERSION = "0.1.0"
 
@@ -56,6 +57,10 @@ def main():
     )
     parser5.add_argument("--id", help="Which rut ID to plot?")
 
+    # Sub-parser for analysing data for anomalies
+    parser6 = subparser.add_parser("anomalies", help="Analyze data for anomalies")
+    parser6.add_argument("--region", help="Which region to look for anomalies")
+
     # Store parser arguments
     args = parser.parse_args()
 
@@ -71,3 +76,5 @@ def main():
         csv_to_category(regions)
     elif args.command == "rut-id":
         rut_id(args.region, args.id)
+    elif args.command == "anomalies":
+        anomalies(regions)
