@@ -1,10 +1,9 @@
 import argparse
-
-from .table_to_csv.app import main as table_to_csv
-from .csv_to_excel.app import main as csv_to_excel
-from .csv_to_category.app import main as csv_to_category
-from .qc.app import main as qc
-from .plot_rutid.app import main as plot_rutid
+from .pipelines.sqltable_to_parquet import main as sqltable_to_parquet
+from .pipelines.parquet_to_excel import main as parquet_to_excel
+from .pipelines.parquet_to_category import main as parquet_to_category
+from .pipelines.quality_check import main as quality_check
+from .pipelines.plot_rutid import main as plot_rutid
 
 VERSION = "0.1.0"
 
@@ -17,67 +16,88 @@ def get_regions(regions):
     return regions
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Effektprognoser")
+class Argparse:
+    def __init__(self):
+        self.parser = argparse.ArgumentParser(description="Effektprognoser.se")
 
-    # Parser for showing VERSION
-    parser.add_argument(
-        "-V", "--version", action="version", version=f"%(prog)s {VERSION}"
-    )
+    def run(self):
+        self.version()
+        self.subparser()
+        self.table2csv()
+        self.csv2excel()
+        self.csv2category()
+        self.quality_check()
+        self.plot_rutid()
+        args = self.parser.parse_args()
+        return args
 
-    # Initialize sub-parsers
-    subparser = parser.add_subparsers(dest="command", required=True)
+    def version(self) -> None:
+        """Add version functionality"""
+        self.parser.add_argument(
+            "-V", "--version", action="version", version=f"%(prog)s {VERSION}"
+        )
 
-    # Sub-parser for running the 'table to csv' pipeline
-    parser1 = subparser.add_parser(
-        "table2csv",
-        help="Load, transform and save each table in a SQLite database as a CSV.",
-    )
-    parser1.add_argument("--region", help="Which region shall be processed?")
+    def subparser(self) -> None:
+        """Add a subparser"""
+        self.subparser = self.parser.add_subparsers(dest="command", required=True)
 
-    # Sub-parser for creating Excel tables from Parquet
-    parser2 = subparser.add_parser(
-        "csv2excel",
-        help="Make Excel sheet tables from Parquet.",
-    )
-    parser2.add_argument("--region", help="Which region shall be processed?")
+    def table2csv(self) -> None:
+        sub = self.subparser.add_parser(
+            "table2csv",
+            help="Processera varje tabell i SQLite-databas och spara varje processad tabell som en Parquet-fil.",
+        )
+        sub.add_argument("--region", help="Vilken region skall bearbetas?")
 
-    # Sub-parser for matching each csv into a category (Bostader, Industri och Bygg, and so on)
-    parser3 = subparser.add_parser(
-        "csv2category",
-        help="Match each CSV to category (Bostader, Industri och Bygg, and so on).",
-    )
-    parser3.add_argument("--region", help="Which region shall be matched?")
+    def csv2excel(self) -> None:
+        sub = self.subparser.add_parser(
+            "csv2excel",
+            help="Skapa statistik per kommun utifrån Parquet-filer.",
+        )
+        sub.add_argument("--region", help="Vilken region skall bearbetas?")
 
-    # Sub-parser for performing quality check
-    parser_qc = subparser.add_parser("qc", help="Perform quality check per region.")
-    parser_qc.add_argument(
-        "--region", help="Which region contain the rut ID of interest?"
-    )
+    def csv2category(self) -> None:
+        sub = self.subparser.add_parser(
+            "csv2category",
+            help="Para ihop varje Parquet-fil med en kategori (Bostäder, Industri och Bygg, osv).",
+        )
+        sub.add_argument("--region", help="Vilken region skall bearbetas?")
 
-    # Sub-parser for plotting a single rut id
-    parser_plot_rutid = subparser.add_parser(
-        "plot-rutid", help="Plot data associated with a single rut ID"
-    )
-    parser_plot_rutid.add_argument(
-        "--region", help="Which region contain the rut ID of interest?"
-    )
-    parser_plot_rutid.add_argument("--rutid", help="The rut ID of interest")
+    def quality_check(self) -> None:
+        sub = self.subparser.add_parser(
+            "qc", help="Utför kvalitetskontroll per region."
+        )
+        sub.add_argument("--region", help="Vilken region skall kvalitetskontrolleras?")
 
-    # Store parser arguments
-    args = parser.parse_args()
+    def plot_rutid(self) -> None:
+        sub = self.subparser.add_parser(
+            "plot-rutid",
+            help="Visualisera alla modelldata som är associerad med en viss ruta.",
+        )
+        sub.add_argument(
+            "--region",
+            help="I vilken region ligger rutan vars modelldata ska visualiseras?",
+        )
+        sub.add_argument(
+            "--rutid", help="Ange RutID för den ruta vars modelldata ska visualiseras."
+        )
 
-    # Process args.region
+
+def main() -> None:
+    args = Argparse().run()
+
     regions = get_regions(args.region)
 
-    # Pipelines
     if args.command == "table2csv":
-        table_to_csv(regions)
+        sqltable_to_parquet(regions)
+
     elif args.command == "csv2excel":
-        csv_to_excel(regions)
+        parquet_to_excel(regions)
+
     elif args.command == "csv2category":
-        csv_to_category(regions)
+        parquet_to_category(regions)
+
     elif args.command == "qc":
-        qc(regions)
+        quality_check(regions)
+
     elif args.command == "plot-rutid":
         plot_rutid(args.region, args.rutid)

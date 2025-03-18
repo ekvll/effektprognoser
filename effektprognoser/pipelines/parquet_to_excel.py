@@ -1,21 +1,14 @@
 import os
-import sys
-import itertools
-import ast
 
 import pandas as pd
 import numpy as np
 import geopandas as gpd
-from effektprognoser.geo.load_geo_data import load_kommuner
-
-try:
-    from effektprognoser.sql.utils import get_years_in_table_names, filter_tables
-except Exception:
-    from ..sql.utils import get_years_in_table_names, filter_tables
+from effektprognoser.geometry import load_kommuner
 from effektprognoser.paths import PARQUET_DIR, EXCEL_DIR
+from effektprognoser.sqlite import get_years_in_table_names, filter_tables
 
 
-def main(regions) -> None:
+def main(regions):
     kommuner = load_kommuner()
 
     for region_index, region in enumerate(regions):
@@ -31,7 +24,6 @@ def main(regions) -> None:
 
             for file in files_filtered:
                 output_filename = "_".join(file.split("_")[2:]).split("_V1")[0]
-                # print(output_filename)
 
                 input_filepath = os.path.join(input_path, file)
 
@@ -48,15 +40,7 @@ def main(regions) -> None:
                     aggregated_lp = np.zeros(8784 if year == "2040" else 8760)
 
                     for lp_str in df_kommun.lp:
-                        # lp_lst = ast.literal_eval(lp_str)
-                        # lp_arr = np.array(lp_lst)
-                        # try:
                         aggregated_lp += lp_str
-                        # except:
-                        #   print(lp_str)
-                        #   print(type(lp_str))
-                        #   print(len(lp_str))
-                        #   print(len(aggregated_lp))
 
                     result[kommun].append(
                         {

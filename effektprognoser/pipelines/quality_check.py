@@ -1,12 +1,48 @@
 import os
-import pandas as pd
 import geopandas as gpd
 import numpy as np
+import pandas as pd
+import logging
 import matplotlib.pyplot as plt
-from .logger import log_issue
-from effektprognoser.paths import LOG_DIR
+from effektprognoser.paths import PARQUET_DIR_LOCAL, LOG_DIR, DATA_DIR
+from ..sqlite import (
+    get_years_in_table_names,
+    filter_tables,
+)
+from ..utils import make_np_array
 
 TRANSPORT_CATEGORIES = {"LL", "PB", "TT"}
+
+
+logging.basicConfig(
+    filename=os.path.join(LOG_DIR, "log_quality_check.csv"),
+    level=logging.INFO,
+    format="%(asctime)s, %(levelname)s, %(message)s",
+)
+
+
+def log_issue(log_msg: list[str]) -> None:
+    """
+    Append log file with log messages (issues).
+    Log filepath is os.path.join(LOG_DIR, "qc_log.csv").
+
+    Args:
+        log_msg (list[str]): List of strings. The length of the list object need to be 4. Each entry in the list object correspond to a specific column in the log file.
+
+    Returns:
+        None
+    """
+    # Verify that the log message list is of length 4
+    if not len(log_msg) == 4:
+        raise ValueError(
+            f"log_msg need to contain 'table', 'column', 'rid' and 'comment' ({log_msg})"
+        )
+
+    # Make the list of strings into a single string object joined by ','
+    str_obj = ", ".join(log_msg)
+
+    # Add the log message to the log file
+    logging.info(str_obj)
 
 
 class QCPipelines:
@@ -50,12 +86,12 @@ class QCPipelines:
 
             # Log any issues found
             if log_comment:
-                log_issue(log_msg + [log_comment])
+                log_issue(log_msg + log_comment)
 
-            # Plot if it hasn't been plotted already
-            if (rid, self.table) not in png_set:
-                plot_row(row, self.table, self.region)
-                png_set.add((rid, self.table))
+                # Plot if it hasn't been plotted already
+                if (rid, self.table) not in png_set:
+                    plot_row(row, self.table, self.region)
+                    png_set.add((rid, self.table))
 
 
 class QCTools:
@@ -136,7 +172,6 @@ def plot_row(row, table: str, region: str) -> None:
     """
     rid = str(row.rid)
 
-    fz = 15  # Fontsize
     fig, ax = plt.subplots(figsize=(12, 7))
     ax.set_title(f"Region: {region}\nTabell: {table}\nID: {rid}")
     ax.plot(row["lp"], linewidth=1, color="black")
@@ -145,7 +180,7 @@ def plot_row(row, table: str, region: str) -> None:
     fig.tight_layout()
 
     # Prepare output file path
-    output_dir = os.path.join(LOG_DIR, "img", region)
+    output_dir = os.path.join(DATA_DIR, "quality_check", region)
     os.makedirs(output_dir, exist_ok=True)
 
     output_name = f"{region}_{rid}_{table}.png"
@@ -155,32 +190,26 @@ def plot_row(row, table: str, region: str) -> None:
     plt.close(fig)
 
 
-def substring_search(main_string: str, string_list: list[str]) -> bool:
-    """
-    Sub-string search.
+def main(regions):
+    for region_index, region in enumerate(regions):
+        print(f"Quality check region {region}")
 
-    Args:
-        main_string (str): The string to look-up.
-        string_list (list[str]): List of strings of strings to check for.
+        # Path to look for Parquet files
+        input_path = os.path.join(PARQUET_DIR_LOCAL, region)
 
-    Returns:
-        bool: True if main_string contain any string in string_list, False otherwise.
-    """
-    return any(substring in main_string for substring in string_list)
+        # List files in path
+        files = os.listdir(input_path)
 
+        # Extract years from filenames
+        years = get_years_in_table_names(files)
 
-def make_np_array(obj: list | pd.Series | np.ndarray) -> np.ndarray | None:
-    """
-    Tries to convert an object into a numpy array.
+        for year in years:
+            print(f"Year: {year}")
+            files_filtered = filter_tables(files, year)
 
-    Args:
-        obj (list | pd.Series | np.ndarray): Object to convert.
+            for file in files_filtered:
+                input_filepath = os.path.join(input_path, file)
+                df = gpd.read_parquet(input_filepath)
 
-    Returns:
-        np.ndarray | None: Numpy array if conversion is possible, None otherwise.
-    """
-    if isinstance(obj, pd.Series) or isinstance(obj, pd.DataFrame):
-        return obj.to_numpy()
-    if isinstance(obj, np.ndarray):
-        return obj
-    return None
+                qc = QCPipelines(df, file, region)
+                qc.qc_lp()

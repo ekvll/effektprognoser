@@ -16,5 +16,6 @@ GEOJSON_DIR = os.path.join(EXTERNAL_ROOT, "geojson")
 PARQUET_DIR = os.path.join(EXTERNAL_ROOT, "parquet")
 PARQUET_DIR_LOCAL = os.path.join(PROJECT_ROOT, "data", "parquet")
 EXCEL_DIR = os.path.join(EXTERNAL_ROOT, "excel")
+
 if __name__ == "__main__":
     print(f"Data Directory: {DATA_DIR}")

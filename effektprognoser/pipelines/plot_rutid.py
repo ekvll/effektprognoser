@@ -4,11 +4,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from effektprognoser.paths import DATA_DIR
-from effektprognoser.sql.utils import (
+from effektprognoser.sqlite import (
     get_table_names_in_db,
     get_years_in_table_names,
     filter_tables,
 )
+from effektprognoser.utils import sort_dict
 
 
 def get_db_path(region):
@@ -68,10 +69,6 @@ def make_plot(data, region, rutid, year):
     output_name = f"{region}_{rutid}_{year}.png"
     plt.savefig(os.path.join(DATA_DIR, "rut_id", region, output_name))
     plt.close(fig)
-
-
-def sort_dict(data):
-    return dict(sorted(data.items(), key=lambda item: item[1].max(), reverse=True))
 
 
 def make_plot_year(region, rutid, data_dict):

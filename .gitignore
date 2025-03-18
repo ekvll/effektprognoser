@@ -1,7 +1,0 @@
-*.egg-info/*
-.venv/
-*.ipynb
-data/*
-__pycache__/
-notebooks/*
-log/*
