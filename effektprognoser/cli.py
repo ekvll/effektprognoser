@@ -1,9 +1,9 @@
 import argparse
-from .pipelines.sqltable_to_parquet import main as sqltable_to_parquet
-from .pipelines.parquet_to_excel import main as parquet_to_excel
-from .pipelines.parquet_to_category import main as parquet_to_category
-from .pipelines.quality_check import main as quality_check
-from .pipelines.plot_rutid import main as plot_rutid
+from .sql_to_parquet.main import main as sqltable_to_parquet
+from .parquet_to_excel.main import main as parquet_to_excel
+from .parquet_to_category.main import main as parquet_to_category
+from .qc.main import main as quality_check
+from .plot_rutid.main import main as plot_rutid
 
 VERSION = "0.1.0"
 
