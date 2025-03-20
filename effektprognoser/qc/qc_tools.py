@@ -66,3 +66,20 @@ class QCTools:
         if self.is_transport_category():
             return 0, 10**10
         return None, None  # Default boundaries
+
+    def missing_value(self):
+        """
+        Check if value is missing.
+        If a value exist 2022, it should also exist 2027, 2030 and 2040, and so on.
+        """
+
+        pass
+
+    def check_bostader(self):
+        """
+        Se om nya bostadäer har negativa värden. Det borde inte existera.
+        """
+        pass
+
+    def check_transport(self):
+        pass

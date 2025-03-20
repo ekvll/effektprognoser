@@ -2,7 +2,7 @@ import os
 import numpy as np
 import geopandas as gpd
 import pandas as pd
-from effektprognoser.sqlite import filter_tables
+from ..sql_manager import filter_tables
 
 
 def process_region(region, input_path, files, years):

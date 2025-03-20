@@ -12,8 +12,8 @@ from ..geometry import (
     keep_largest_area,
     intersection_by_polygon,
 )
-from ..sqlite import filter_tables, load_table_in_chunks, get_table_column_names
-from ..save import save_table_as_parquet
+from ..sql_manager import filter_tables, load_table_in_chunks, get_table_column_names
+from .save import as_parquet
 
 
 def process_region(region, gdf_grid, gdf_kommuner, gdf_natomrade):
@@ -43,7 +43,7 @@ def process_region(region, gdf_grid, gdf_kommuner, gdf_natomrade):
             gdf = intersection_by_polygon(gdf, gdf_natomrade)
             gdf = keep_largest_area(gdf)
 
-            save_table_as_parquet(gdf, region, table)
+            as_parquet(gdf, region, table)
 
             del df, gdf
             gc.collect()

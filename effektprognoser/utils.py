@@ -1,3 +1,4 @@
+import geopandas as gpd
 import numpy as np
 import pandas as pd
 
@@ -35,3 +36,13 @@ def substring_search(main_string: str, string_list: list[str]) -> bool:
         bool: True if main_string contain any string in string_list, False otherwise.
     """
     return any(substring in main_string for substring in string_list)
+
+
+def verify_gdf(gdf):
+    if not isinstance(gdf, gpd.GeoDataFrame):
+        gdf = gpd.GeoDataFrame(gdf, geometry="geometry", crs="EPSG:3006")
+
+    if not gdf.crs == "EPSG:3006":
+        gdf = gdf.set_crs("EPSG:3006")
+
+    return gdf

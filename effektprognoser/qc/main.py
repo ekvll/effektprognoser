@@ -1,7 +1,7 @@
 import os
 import geopandas as gpd
 from effektprognoser.paths import PARQUET_DIR_LOCAL
-from ..sqlite import get_years_in_table_names, filter_tables
+from ..sql_manager import get_years_in_table_names, filter_tables
 from .qc_pipelines import QCPipelines
 
 

@@ -1,7 +1,7 @@
 import os
 from effektprognoser.paths import PARQUET_DIR
-from effektprognoser.geometry import load_kommuner
-from effektprognoser.sqlite import get_years_in_table_names, filter_tables
+from ..geometry import load_kommuner
+from ..sql_manager import get_years_in_table_names, filter_tables
 from .data_processing import process_region
 from .excel_utils import make_excel_table
 

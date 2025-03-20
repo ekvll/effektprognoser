@@ -1,4 +1,4 @@
-from ..sqlite import (
+from ..sql_manager import (
     gen_db_path,
     connect_to_db,
     close_connection,
