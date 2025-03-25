@@ -64,6 +64,20 @@ def load_gpkg(file_path: str, crs: str, keep_col: list[str] = None) -> gpd.GeoDa
     return gdf
 
 
+def load_regioner() -> gpd.GeoDataFrame:
+    sub_folder = "gis"
+    file_name = "Skane_och_RSS.gpkg"
+    file_path: str = _gen_file_path(file_name, sub_folder)
+
+    crs = "EPSG:3006"
+
+    keep_col = ["LnKod", "LnNamn", "geometry"]
+
+    gdf = load_gpkg(file_path, crs, keep_col)
+    print(gdf.head())
+    return gdf
+
+
 def load_grid() -> gpd.GeoDataFrame:
     sub_folder = "grid"
     file_name = "RSS_Skane_squares.gpkg"

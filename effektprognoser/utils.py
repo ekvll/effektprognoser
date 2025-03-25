@@ -46,3 +46,53 @@ def verify_gdf(gdf):
         gdf = gdf.set_crs("EPSG:3006")
 
     return gdf
+
+
+def get_metadata():
+    raps = [
+        "Flerbostadshus",
+        "Smahus",
+        "LOM_Flerbostadshus",
+        "LOM_Smahus",
+        "RAPS_1_3",
+        "RAPS_4",
+        "RAPS_5",
+        "RAPS_6",
+        "RAPS_7",
+        "RAPS_8",
+        "RAPS_9",
+        "RAPS_10",
+        "RAPS_11",
+        "RAPS_12",
+        "RAPS_13",
+        "RAPS_14",
+        "RAPS_15",
+        "RAPS_16",
+        "RAPS_17",
+        "RAPS_18",
+        "RAPS_19",
+        "RAPS_20",
+        "RAPS_21",
+        "RAPS_22",
+        "RAPS_23",
+        "RAPS_24",
+        "RAPS_27",
+        "RAPS_7777",
+        "RAPS_8888",
+        "PB",
+        "LL",
+        "TT_DEP",
+        "TT_DEST",
+        "TT_RESTSTOP",
+    ]
+    raps = [r + "_" for r in raps]
+    years = ["2022", "2027", "2030", "2040"]
+    return raps, years
+
+
+def combine_metadata(raps_list, years):
+    checks = []
+    for raps in raps_list:
+        for year in years:
+            checks.append(f"{year}_{raps}")
+    return checks

@@ -13,6 +13,7 @@ EXTERNAL_ROOT_WIN = "D:\effektprognoser"
 LOG_DIR = os.path.join(PROJECT_ROOT, "log")
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 PARQUET_DIR_LOCAL = os.path.join(PROJECT_ROOT, "data", "parquet")
+EXCEL_DIR_LOCAL = os.path.join(PROJECT_ROOT, "data", "excel")
 
 # External root
 SQL_DIR = os.path.join(EXTERNAL_ROOT, "sqlite")

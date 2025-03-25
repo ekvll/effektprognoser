@@ -1,7 +1,6 @@
 import os
 import numpy as np
 import geopandas as gpd
-import pandas as pd
 from ..sql_manager import filter_tables
 
 
