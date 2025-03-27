@@ -96,3 +96,43 @@ def combine_metadata(raps_list, years):
         for year in years:
             checks.append(f"{year}_{raps}")
     return checks
+
+
+def get_category_mapping():
+    category_mapping = {
+        "bostader": ["Smahus_V1", "Flerbostadshus_V1"],
+        "transport": [
+            "LL_V1",
+            "PB_V1",
+            "TT_V1",
+            "TT_DEP_V1",
+            "TT_RESTSTOP_V1",
+            "TT_DEST_V1",
+        ],
+        "offentlig_och_privat_sektor": ["7777_V1", "8888_V1"],
+        "industri_och_bygg": [
+            "_4_V1",
+            "_5_V1",
+            "_6_V1",
+            "_7_V1",
+            "_8_V1",
+            "_9_V1",
+            "_10_V1",
+            "_11_V1",
+            "_13_V1",
+            "_14_V1",
+            "_15_V1",
+            "_16_V1",
+            "_17_V1",
+            "_18_V1",
+            "_19_V1",
+            "_20_V1",
+            "_21_V1",
+            "_22_V1",
+            "_23_V1",
+            "_24_V1",
+            "_27_V1",
+        ],
+        "jordbruk_skog_och_fiske": ["_1_3_V1"],
+    }
+    return category_mapping
