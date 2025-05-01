@@ -1,0 +1,26 @@
+[project]
+name = "eptools"
+version = "0.1.0"
+description = "Effektprognoser.se CLI"
+authors = [ { name = "Erik Lindvall", email = "erik.lindvall@ri.se" }]
+dependencies = [
+	"typer[all]",
+	"pandas",
+	"geopandas",
+	"numpy",
+	"tqdm",
+	"pyarrow",
+	"matplotlib",
+	
+]
+requires-python = ">=3.10"
+
+[project.scripts]
+eptools = "eptools.cli.main:app"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["eptools"]
