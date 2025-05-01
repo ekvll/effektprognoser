@@ -1,12 +1,7 @@
 import os
 import pickle
-import sys
 import pandas as pd
-import random
 import numpy as np
-import matplotlib.pyplot as plt
-import geopandas as gpd
-from matplotlib import cm
 
 """
 Organize this code. But the code into functions, etc.
