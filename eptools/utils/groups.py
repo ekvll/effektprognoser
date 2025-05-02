@@ -34,7 +34,14 @@ custom_order = [
     "TT DEST",
     "TT RESTSTOP",
 ]
-
+categories = [
+    "total",
+    "bostader",
+    "industri_och_bygg",
+    "offentlig_och_privat_sektor",
+    "transport",
+    "jordbruk_skogsbruk",
+]
 category_groups = {
     "total": custom_order,
     "bostader": ["Flerbostadshus", "Smahus", "LOM Flerbostadshus", "LOM Smahus"],

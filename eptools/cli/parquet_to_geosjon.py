@@ -1,10 +1,12 @@
 import os
+import ast
+import re
 import geopandas as gpd
 import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
-from eptools.utils.paths import PARQUET_DIR, GEOJSON_TMP_DIR
-from eptools.utils.groups import category_groups
+from eptools.utils.paths import PARQUET_DIR, GEOJSON_TMP_DIR, GEOJSON_DIR
+from eptools.utils.groups import category_groups, categories
 from eptools.processing.transform import get_category
 
 """
@@ -106,6 +108,8 @@ def process(categories: dict, region: str):
                     {
                         "rid": rid,
                         "lp": values["lp"],
+                        "eb": values["lp"].max(),
+                        "ea": values["lp"].sum(),
                         "geometry": values["geometry"].values[0],
                     }
                 )
@@ -129,11 +133,81 @@ def run(region: str):
     process(categories, region)
 
 
-def postprocess(region: str):
+def percent_change(new_value, old_value):
+    change = ((new_value - old_value) / old_value) * 100
+    return change
 
-    files = os.listdir(os.path.join(GEOJSON_TMP_DIR, region))
-    print(files)
-    gdf = gpd.read_file(os.path.join(GEOJSON_TMP_DIR
+
+def merge_keep_unmutuals(gdf, ref):
+    # Outer merge keeps all rows, including non-matching 'rid's
+    merged = gdf.merge(ref, on="rid", how="left", suffixes=("_gdf", "_ref"))
+
+    # Compute differences and percent changes, allowing NaN to propagate
+    merged["ebd"] = merged["eb_gdf"] - merged["eb_ref"]
+    merged["ebp"] = ((merged["eb_gdf"] - merged["eb_ref"]) / merged["eb_ref"]) * 100
+
+    merged["ead"] = merged["ea_gdf"] - merged["ea_ref"]
+    merged["eap"] = ((merged["ea_gdf"] - merged["ea_ref"]) / merged["ea_ref"]) * 100
+
+    merged = merged.drop(
+        columns=[c for c in merged.columns if "_ref" in c or "lp" in c]
+    )
+
+    merged = merged.rename(
+        columns={"eb_gdf": "eb", "ea_gdf": "ea", "geometry_gdf": "geometry"}
+    )
+
+    return merged
+
+
+def merge_drop_unmutuals(gdf, ref):
+    # Assume gdf and ref both have a 'rid' column and a 'value' column
+    merged = gdf.merge(ref, on="rid", suffixes=("_gdf", "_ref"))
+
+    merged["ebd"] = merged["eb_gdf"] - merged["eb_ref"]
+    merged["ebp"] = ((merged["eb_gdf"] - merged["eb_ref"]) / merged["eb_ref"]) * 100
+
+    merged["ead"] = merged["ea_gdf"] - merged["ea_ref"]
+    merged["eap"] = ((merged["ea_gdf"] - merged["ea_ref"]) / merged["ea_ref"]) * 100
+
+    # merged = merged.drop(
+    #    columns=[col for col in merged.columns if "_gdf" in col or "_ref" in col]
+    # )
+    return merged
+
+
+def postprocess(region: str):
+    path = os.path.join(GEOJSON_TMP_DIR, region)
+    out_path = os.path.join(GEOJSON_DIR, region)
+    os.makedirs(out_path, exist_ok=True)
+    files = os.listdir(path)
+    for category in categories:
+        print(f"\nCategory {category}")
+        files_filtered = sorted([f for f in files if category in f])
+        for file in files_filtered:
+            gdf = gpd.read_file(os.path.join(path, file))
+            year = file.split("_")[0]
+            if year == "2022":
+                ref = gdf.copy(deep=True)
+            # Merge with the reference DataFrame
+            merged = merge_keep_unmutuals(gdf, ref)
+            print(merged.columns)
+            print(merged.head())
+
+            merged.to_file(
+                os.path.join(out_path, f"{year}_{category}.geojson"), driver="GeoJSON"
+            )
+
+            # gdf = merge_drop_unmutuals(gdf, ref)
+        #  unique_ids = gdf.rid.unique()
+
+    # years: list[str] = get_years(files)
+    # for file in files:
+    #    print
+    # gdf = gpd.read_file(os.path.join(path, file))
+    # print(gdf)
+    # gdf.plot()
+    # plt.show()
 
 
 if __name__ == "__main__":
