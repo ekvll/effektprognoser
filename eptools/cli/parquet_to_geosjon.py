@@ -1,6 +1,7 @@
 import os
 import geopandas as gpd
 import numpy as np
+import matplotlib.pyplot as plt
 from tqdm import tqdm
 from eptools.utils.paths import PARQUET_DIR, GEOJSON_TMP_DIR
 from eptools.utils.groups import category_groups
@@ -119,7 +120,7 @@ def process(categories: dict, region: str):
             )
 
 
-def run(region):
+def run(region: str):
     tqdm.write(f"Processing region {region}")
     path: str = os.path.join(PARQUET_DIR, region)
     files: list[str] = os.listdir(path)
@@ -128,6 +129,14 @@ def run(region):
     process(categories, region)
 
 
+def postprocess(region: str):
+
+    files = os.listdir(os.path.join(GEOJSON_TMP_DIR, region))
+    print(files)
+    gdf = gpd.read_file(os.path.join(GEOJSON_TMP_DIR
+
+
 if __name__ == "__main__":
     region = "10"
-    run(region)
+    # run(region)
+    postprocess(region)
