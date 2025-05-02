@@ -2,7 +2,7 @@ import os
 import geopandas as gpd
 import numpy as np
 from tqdm import tqdm
-from eptools.utils.paths import PARQUET_DIR
+from eptools.utils.paths import PARQUET_DIR, GEOJSON_TMP_DIR
 from eptools.utils.groups import category_groups
 from eptools.processing.transform import get_category
 
@@ -54,13 +54,13 @@ def process(categories: dict, region: str):
             continue
 
         # Extract years from current category's files
-        years = get_years(files)
+        years: list[str] = get_years(files)
 
         for year in years:
             tqdm.write(f"Year {year}")
 
             # Only process files for this year
-            files_filtered = [f for f in files if year in f]
+            files_filtered: list[str] = [f for f in files if year in f]
 
             if len(files_filtered) == 0:
                 tqdm.write(f"No files for year {year}")
@@ -98,6 +98,7 @@ def process(categories: dict, region: str):
                     # Add the 'lp' array to cumulative sum for this 'rid'
                     data[rid]["lp"] += gdf_rid.lp.to_numpy()[0]
 
+            # Re-structure the data dict to fit into a DataFrame
             records = []
             for rid, values in data.items():
                 records.append(
@@ -107,8 +108,15 @@ def process(categories: dict, region: str):
                         "geometry": values["geometry"].values[0],
                     }
                 )
-            gdf_out = gpd.GeoDataFrame(records, crs="EPSG:3006")
-            print(gdf_out.head())
+            gdf_out: gpd.GeoDataFrame = gpd.GeoDataFrame(records, crs="EPSG:3006")
+
+            # Save as GeoJSON
+            path_output: str = os.path.join(GEOJSON_TMP_DIR, region)
+            os.makedirs(path_output, exist_ok=True)
+            filename_output: str = f"{year}_{category}.geojson"
+            gdf_out.to_file(
+                os.path.join(path_output, filename_output), driver="GeoJSON"
+            )
 
 
 def run(region):
