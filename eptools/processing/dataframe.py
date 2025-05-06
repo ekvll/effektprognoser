@@ -37,6 +37,15 @@ def year_from_filename(filename: str) -> str:
     return filename.split("_")[1]
 
 
+def years_from_filenames(filenames: list[str]):
+    years = []
+    for filename in filenames:
+        year = year_from_filename(filename)
+        if year not in years:
+            years.append(year)
+    return sorted(years)
+
+
 def as_pickle(data: dict, filename, region) -> None:
     if filename.endswith(".parquet"):
         filename = filename.replace(".parquet", ".pkl")

@@ -36,3 +36,18 @@ def kommuner_in_region(filenames: list[str], region: str) -> list[str]:
 
 def get_kommuner(df: pd.DataFrame | gpd.GeoDataFrame):
     return list(df["kn"].unique())
+
+
+def get_time_data(time_dict, kommun, year):
+    filtered_times = {
+        " ".join(k.split("_")[2:-1]): [int(v[0]), float(v[1]), v[2]]
+        for k, v in time_dict[kommun].items()
+        if year in k
+    }
+    return filtered_times
+
+
+def get_max_and_index(loadprofile):
+    max_value = np.max(loadprofile)
+    index = np.argmax(loadprofile)
+    return max_value, index
