@@ -1,0 +1,11 @@
+[project]
+name = "Effektprognoser"
+version = "0.1.0"
+description = "Effektprognoser"
+authors = [{ name = "Erik Lindvall", email = "erik.lindvall@proton.me" }]
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = []
+
+[tool.setuptools]
+packages = ["ep"]
