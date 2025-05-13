@@ -21,3 +21,15 @@ def test_db_tables_returns_table_names() -> None:
     assert "test2" in result
     assert isinstance(result, list)
     assert all(isinstance(name, str) for name in result)
+
+    conn.close()
+
+
+def test_db_tables_with_no_tables() -> None:
+    conn = sqlite3.connect(":memory:")
+    cursor = conn.cursor()
+
+    result = db_tables(cursor)
+    assert result == []
+
+    conn.close()
