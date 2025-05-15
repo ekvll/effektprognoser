@@ -1,4 +1,5 @@
 import sqlite3
+import pandas as pd
 
 
 def db_tables(cursor: sqlite3.Cursor) -> list[str]:
@@ -20,3 +21,12 @@ def db_years(tables: list[str]) -> list[int]:
         if year not in years:
             years.append(year)
     return sorted(years)
+
+
+def drop_nan_row(df: pd.DataFrame, col: str = None) -> pd.DataFrame:
+    """Drop rows with NaN values."""
+    if col:
+        if col not in df.columns:
+            raise KeyError(f"Column '{col}' not found in DataFrame.")
+        return df.dropna(subset=[col])
+    return df.dropna()

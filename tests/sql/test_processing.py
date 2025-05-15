@@ -1,6 +1,8 @@
 import sqlite3
+import pytest
+import pandas as pd
 
-from ep.sql.processing import db_tables, db_years
+from ep.sql.processing import db_tables, db_years, drop_nan_row
 
 
 def test_db_tables_returns_table_names() -> None:
@@ -45,3 +47,53 @@ def test_db_years() -> None:
 
     # Check if the expected years are in the result
     assert result == expected_years
+
+
+def test_drop_nan_row() -> None:
+    df = pd.DataFrame(
+        {
+            "A": [1, 2, None],
+            "B": [4, None, 6],
+        }
+    )
+
+    result = drop_nan_row(df)
+
+    assert result.shape[0] == 1
+    assert result.shape[1] == 2
+    assert result.iloc[0]["A"] == 1
+    assert result.iloc[0]["B"] == 4
+
+
+def test_drop_nan_row_with_col() -> None:
+    df = pd.DataFrame(
+        {
+            "A": [1, 2, None],
+            "B": [4, 5, 6],
+        }
+    )
+
+    result = drop_nan_row(df)
+    # Should drop the row with NaN in column A
+    assert result.shape[0] == 2
+    assert result["A"].isnull().sum() == 0
+
+
+def test_drop_nan_row_with_invalid_col() -> None:
+    df = pd.DataFrame({"A": [1, 2, 3]})
+    with pytest.raises(KeyError, match="Column 'missing' not found"):
+        drop_nan_row(df, col="missing")
+
+
+def test_drop_nan_row_all_cols_no_nan() -> None:
+    df = pd.DataFrame(
+        {
+            "A": [1, 2, 3],
+            "B": [4, 5, 6],
+        }
+    )
+
+    result = drop_nan_row(df)
+
+    # No rows should be dropped
+    pd.testing.assert_frame_equal(result, df)
