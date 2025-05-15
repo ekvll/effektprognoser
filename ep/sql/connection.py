@@ -2,6 +2,7 @@ import sqlite3
 
 
 def connect_to_db(path: str) -> sqlite3.Connection:
+    """Create a connection to the SQLite database."""
     try:
         return sqlite3.connect(path)
     except sqlite3.Error as e:
@@ -9,10 +10,12 @@ def connect_to_db(path: str) -> sqlite3.Connection:
 
 
 def get_cursor(conn: sqlite3.Connection) -> sqlite3.Cursor:
+    """Get a cursor object from the database connection."""
     return conn.cursor()
 
 
 def validate_connection(conn: sqlite3.Connection) -> None:
+    """Validate the database connection by executing a simple query."""
     try:
         conn.execute("SELECT 1")
     except sqlite3.OperationalError as e:
