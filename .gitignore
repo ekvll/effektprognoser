@@ -2,3 +2,6 @@
 .git/
 *egg-info/
 .gitignore
+*.pyc
+__pycache__/
+
