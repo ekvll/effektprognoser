@@ -106,3 +106,52 @@ def add_geometry(
 
     df["geometry"] = df["rid"].map(geometry_map)
     return df
+
+
+def to_gdf(df: pd.DataFrame, crs: str, geometry: str = "geometry") -> gpd.GeoDataFrame:
+    """Convert DataFrame to GeoDataFrame."""
+    if geometry not in df.columns:
+        raise KeyError(f"Column '{geometry}' not found in DataFrame.")
+    return gpd.GeoDataFrame(df, geometry=geometry, crs=crs)
+
+
+def polygon_intersection(
+    gdf: gpd.GeoDataFrame, intersect: gpd.GeoDataFrame
+) -> gpd.GeoDataFrame:
+    """Perform intersection of two GeoDataFrames."""
+    gdf = validate_geometries(gdf)
+    intersect = validate_geometries(intersect)
+
+    return gpd.overlay(gdf, intersect, how="intersection")
+
+
+def validate_geometries(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    """Drop invalid geometries from a GeoDataFrame."""
+    if not gdf.is_valid.all():
+        gdf = gdf[gdf.is_valid].reset_index(drop=True)
+        print("Dropped invalid geometries.")
+    return gdf
+
+
+def get_largest_area_geometry(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    gdf_uid = gdf.assign(area=gdf.geometry.area / 10**6).reset_index(drop=True)
+
+    idx_max_area = gdf_uid.area.idxmax()
+
+    gdf_dissolve = gdf_uid.dissolve()
+
+    gdf_max = gdf_uid.iloc[[idx_max_area]]
+    gdf_max = gdf_max.assign(geometry=gdf_dissolve.iloc[0]["geometry"])
+
+    return gdf_max
+
+
+def largest_area(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    """Get the largest area geometry from a GeoDataFrame."""
+    result = gpd.GeoDataFrame()
+
+    for uid in gdf.rid.unique():
+        gdf_uid = to_gdf(gdf[gdf.rid == uid], crs="EPSG:3006")
+
+        if gdf_uid.shape[0] > 1:
+            pass

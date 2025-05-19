@@ -174,3 +174,15 @@ def test_compute_summary_stats():
 
 def test_group_elanvandning():
     pass
+
+
+def test_to_gdf():
+    pass
+
+
+def test_polygon_intersection():
+    pass
+
+
+def test_validate_geometries():
+    pass
