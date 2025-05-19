@@ -3,7 +3,14 @@ import pytest
 import pandas as pd
 import numpy as np
 
-from ep.sql.processing import db_tables, db_years, drop_nan_row, set_dtypes, sort_df
+from ep.sql.processing import (
+    db_tables,
+    db_years,
+    drop_nan_row,
+    set_dtypes,
+    sort_df,
+    drop_column,
+)
 
 
 def test_db_tables_returns_table_names() -> None:
@@ -121,3 +128,15 @@ def test_sort_df_multiple_columns():
     )
     sorted_df = sort_df(df, col=["a", "b"], ascending=[True, False])
     assert sorted_df.iloc[0]["a"] == 1
+
+
+def test_drop_column():
+    df = pd.DataFrame(
+        {
+            "A": [1, 2, 3],
+            "B": [4, 5, 6],
+        }
+    )
+
+    result = drop_column(df, "A")
+    assert "A" not in result.columns

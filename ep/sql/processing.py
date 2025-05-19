@@ -67,3 +67,10 @@ def sort_df(
         raise KeyError(f"Column not found in DataFrame: {e}")
     except Exception as e:
         raise ValueError(f"Could not sort DataFrame: {e}")
+
+
+def drop_column(df: pd.DataFrame, col: str) -> pd.DataFrame:
+    """Drop a column from a DataFrame."""
+    if col not in df.columns:
+        raise KeyError(f"Column '{col}' not found in DataFrame.")
+    return df.drop(columns=[col])
