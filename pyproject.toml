@@ -5,7 +5,12 @@ description = "Effektprognoser"
 authors = [{ name = "Erik Lindvall", email = "erik.lindvall@proton.me" }]
 readme = "README.md"
 requires-python = ">=3.8"
-dependencies = []
+dependencies = [
+	"pandas",
+	"geopandas",
+	"numpy",
+	"pytest",
+]
 
 [tool.setuptools]
 packages = ["ep"]
