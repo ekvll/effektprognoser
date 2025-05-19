@@ -1,4 +1,5 @@
 import sqlite3
+import numpy as np
 import pandas as pd
 
 
@@ -30,3 +31,26 @@ def drop_nan_row(df: pd.DataFrame, col: str = None) -> pd.DataFrame:
             raise KeyError(f"Column '{col}' not found in DataFrame.")
         return df.dropna(subset=[col])
     return df.dropna()
+
+
+def get_column_dtypes() -> dict:
+    """Define expected data types for each column."""
+    return {
+        "rid": np.uint64,
+        "Elanvandning": np.float64,
+        "Tidpunkt": np.uint64,
+    }
+
+
+def cast_dtypes(df: pd.DataFrame, dtype_map: dict) -> pd.DataFrame:
+    """Apply data types to DataFrame columns."""
+    try:
+        return df.astype(dtype_map)
+    except Exception as e:
+        raise ValueError(f"Error casting dtypes: {e}")
+
+
+def set_dtypes(df: pd.DataFrame) -> pd.DataFrame:
+    """Set predefined dtypes for a DataFrame."""
+    dtype_map = get_column_dtypes()
+    return cast_dtypes(df, dtype_map)

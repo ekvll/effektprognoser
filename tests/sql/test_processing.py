@@ -1,8 +1,9 @@
 import sqlite3
 import pytest
 import pandas as pd
+import numpy as np
 
-from ep.sql.processing import db_tables, db_years, drop_nan_row
+from ep.sql.processing import db_tables, db_years, drop_nan_row, set_dtypes
 
 
 def test_db_tables_returns_table_names() -> None:
@@ -97,3 +98,15 @@ def test_drop_nan_row_all_cols_no_nan() -> None:
 
     # No rows should be dropped
     pd.testing.assert_frame_equal(result, df)
+
+
+def test_set_dtypes_success():
+    df = pd.DataFrame(
+        {
+            "rid": [1, 2],
+            "Elanvandning": [0.1, 0.2],
+            "Tidpunkt": [20220101, 20220102],
+        }
+    )
+    result = set_dtypes(df)
+    assert result.dtypes["rid"] == np.dtype("uint64")
