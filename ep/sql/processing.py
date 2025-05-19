@@ -54,3 +54,16 @@ def set_dtypes(df: pd.DataFrame) -> pd.DataFrame:
     """Set predefined dtypes for a DataFrame."""
     dtype_map = get_column_dtypes()
     return cast_dtypes(df, dtype_map)
+
+
+def sort_df(
+    df: pd.DataFrame, col: list[str], ascending: bool | list[bool]
+) -> pd.DataFrame:
+    """Sort a DataFrame by one or more columns."""
+    try:
+        df_sorted = df.sort_values(by=col, ascending=ascending)
+        return df_sorted.reset_index(drop=True)
+    except KeyError as e:
+        raise KeyError(f"Column not found in DataFrame: {e}")
+    except Exception as e:
+        raise ValueError(f"Could not sort DataFrame: {e}")

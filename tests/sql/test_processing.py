@@ -3,7 +3,7 @@ import pytest
 import pandas as pd
 import numpy as np
 
-from ep.sql.processing import db_tables, db_years, drop_nan_row, set_dtypes
+from ep.sql.processing import db_tables, db_years, drop_nan_row, set_dtypes, sort_df
 
 
 def test_db_tables_returns_table_names() -> None:
@@ -110,3 +110,14 @@ def test_set_dtypes_success():
     )
     result = set_dtypes(df)
     assert result.dtypes["rid"] == np.dtype("uint64")
+
+
+def test_sort_df_multiple_columns():
+    df = pd.DataFrame(
+        {
+            "a": [2, 1, 3],
+            "b": [9, 8, 7],
+        }
+    )
+    sorted_df = sort_df(df, col=["a", "b"], ascending=[True, False])
+    assert sorted_df.iloc[0]["a"] == 1
