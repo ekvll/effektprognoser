@@ -1,6 +1,7 @@
 import sqlite3
 import numpy as np
 import pandas as pd
+import geopandas as gpd
 
 
 def db_tables(cursor: sqlite3.Cursor) -> list[str]:
@@ -74,3 +75,34 @@ def drop_column(df: pd.DataFrame, col: str) -> pd.DataFrame:
     if col not in df.columns:
         raise KeyError(f"Column '{col}' not found in DataFrame.")
     return df.drop(columns=[col])
+
+
+def group_elanvandning(df: pd.DataFrame) -> pd.DataFrame:
+    """Group 'Elanvandning' by 'rid' into lists."""
+    return df.groupby("rid")["Elanvandning"].apply(list).reset_index(name="lp")
+
+
+def compute_summary_stats(df: pd.DataFrame) -> pd.DataFrame:
+    """Compute 'Elanvandning' (ea) and 'Effektbehov' (eb) statistics for each group."""
+    df["ea"] = df["lp"].apply(lambda x: sum(x))
+    df["eb"] = df["lp"].apply(lambda x: max(x))
+    return df
+
+
+def calculate_energy_statistics(df: pd.DataFrame) -> pd.DataFrame:
+    """Calculate energy data by rid."""
+    transposed = group_elanvandning(df)
+    return compute_summary_stats(transposed)
+
+
+def add_geometry(
+    df: pd.DataFrame, grid: gpd.GeoDataFrame
+) -> pd.DataFrame | gpd.GeoDataFrame:
+    """Assign geometry to df rows based on matching 'rid' in the grid."""
+    geometry_map = grid.set_index("rid")["geometry"]
+    if not df["rid"].isin(geometry_map.index).all():
+        missing = df.loc[~df["rid"].isin(geometry_map.index), "rid"].unique()
+        raise ValueError(f"Missing geometry for rid(s): {missing}")
+
+    df["geometry"] = df["rid"].map(geometry_map)
+    return df

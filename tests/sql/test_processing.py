@@ -2,6 +2,7 @@ import sqlite3
 import pytest
 import pandas as pd
 import numpy as np
+from shapely.geometry import Point
 
 from ep.sql.processing import (
     db_tables,
@@ -10,6 +11,7 @@ from ep.sql.processing import (
     set_dtypes,
     sort_df,
     drop_column,
+    add_geometry,
 )
 
 
@@ -140,3 +142,35 @@ def test_drop_column():
 
     result = drop_column(df, "A")
     assert "A" not in result.columns
+
+
+def test_add_geometry_success():
+    df = pd.DataFrame({"rid": [1, 2]})
+    grid = pd.DataFrame({"rid": [1, 2], "geometry": [Point(0, 0), Point(1, 1)]})
+
+    result = add_geometry(df, grid)
+    assert "geometry" in result.columns
+    assert result.loc[0, "geometry"] == Point(0, 0)
+    assert result.loc[1, "geometry"] == Point(1, 1)
+
+
+def test_add_geometry_missing_rid():
+    df = pd.DataFrame({"rid": [1, 3]})
+    grid = pd.DataFrame({"rid": [1, 2], "geometry": [Point(0, 0), Point(1, 1)]})
+
+    with pytest.raises(ValueError) as excinfo:
+        add_geometry(df, grid)
+
+    assert "Missing geometry for rid(s): [3]" in str(excinfo.value)
+
+
+def test_calculate_energy_statistics():
+    pass
+
+
+def test_compute_summary_stats():
+    pass
+
+
+def test_group_elanvandning():
+    pass
