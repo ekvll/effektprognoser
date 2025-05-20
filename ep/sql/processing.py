@@ -2,6 +2,7 @@ import sqlite3
 import numpy as np
 import pandas as pd
 import geopandas as gpd
+from tqdm import tqdm
 
 
 def db_tables(cursor: sqlite3.Cursor) -> list[str]:
@@ -23,6 +24,11 @@ def db_years(tables: list[str]) -> list[int]:
         if year not in years:
             years.append(year)
     return sorted(years)
+
+
+def filter_tables(tables: list[str], year: str) -> list[str]:
+    """Filter tables by year."""
+    return [table for table in tables if year in table]
 
 
 def drop_nan_row(df: pd.DataFrame, col: str = None) -> pd.DataFrame:
@@ -129,7 +135,7 @@ def _validate_geometries(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     """Drop invalid geometries from a GeoDataFrame."""
     if not gdf.is_valid.all():
         gdf = gdf[gdf.is_valid].reset_index(drop=True)
-        print("Dropped invalid geometries.")
+        tqdm.write("Dropped invalid geometries.")
     return gdf
 
 

@@ -1,4 +1,7 @@
 import pandas as pd
+import geopandas as gpd
+
+from tqdm import tqdm
 
 
 def has_no_all_zero_columns(df: pd.DataFrame) -> bool:
@@ -26,7 +29,19 @@ def qc(df: pd.DataFrame, year: int | str) -> bool:
     }
 
     failed = [name for name, result in checks.items() if not result]
+
     for name in failed:
-        print(f"Failed QC: {name}")
+        tqdm.write(f"Failed QC: {name}")
 
     return not failed
+
+
+def verify_gdf(gdf: gpd.GeoDataFrame, crs: str) -> gpd.GeoDataFrame:
+    """Verify and set the CRS of a GeoDataFrame."""
+    if not isinstance(gdf, gpd.GeoDataFrame):
+        gdf = gpd.GeoDataFrame(gdf, geometry="geometry", crs=crs)
+
+    if not gdf.crs == crs:
+        gdf = gdf.set_crs(crs)
+
+    return gdf

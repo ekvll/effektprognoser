@@ -3,7 +3,7 @@ import pytest
 import pandas as pd
 import geopandas as gpd
 import numpy as np
-from shapely.geometry import Point, Polygon
+from shapely import Point, Polygon
 
 from ep.sql.processing import (
     db_tables,
@@ -18,6 +18,7 @@ from ep.sql.processing import (
     to_gdf,
     group_elanvandning,
     compute_summary_stats,
+    calculate_energy_statistics,
     _get_largest_area_geometry,
     _validate_geometries,
 )
@@ -177,7 +178,25 @@ def test_add_geometry_missing_rid():
 
 
 def test_calculate_energy_statistics():
-    pass
+    df = pd.DataFrame(
+        {
+            "rid": [1, 1, 2, 2],
+            "Elanvandning": [10.0, 12.5, 8.0, 9.0],
+        }
+    )
+
+    result = calculate_energy_statistics(df)
+
+    assert len(result) == 2
+    assert result.iloc[0]["rid"] == 1
+    assert result.iloc[0]["ea"] == 22.5
+    assert result.iloc[0]["eb"] == 12.5
+    assert result.iloc[0]["lp"] == [10.0, 12.5]
+
+    assert result.iloc[1]["rid"] == 2
+    assert result.iloc[1]["ea"] == 17.0
+    assert result.iloc[1]["eb"] == 9.0
+    assert result.iloc[1]["lp"] == [8.0, 9.0]
 
 
 def test_compute_summary_stats():
@@ -205,7 +224,6 @@ def test_group_elanvandning():
     )
 
     result = group_elanvandning(df)
-    print(result)
     assert len(result) == 3  # One for each unique rid
     assert result["rid"].tolist() == [1, 2, 3]
     assert result.iloc[0]["lp"] == [10.0, 12.5]
