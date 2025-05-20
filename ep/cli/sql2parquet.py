@@ -18,7 +18,7 @@ from ep.sql.processing import (
 )
 from ep.sql.load import load_table_chunks
 from ep.sql.qc import qc
-from ep.layers import load_grid, load_kommun, load_natomrade, set_crs
+from ep.layers import load_grid, load_kommun, load_natomrade
 from ep.save import as_parquet
 
 
@@ -40,7 +40,6 @@ def main(region):
         tqdm.write(f"Processing year: {year}")
         tables_filtered = filter_tables(tables, year)
 
-        # for table in tables_filtered:
         for table in tqdm(tables_filtered, desc="Tables", position=0):
             df = load_table_chunks(conn, cursor, table)
             df = drop_nan_row(df, "rid")
