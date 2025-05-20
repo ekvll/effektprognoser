@@ -14,6 +14,10 @@ from ep.sql.processing import (
     drop_column,
     add_geometry,
     largest_area,
+    polygon_intersection,
+    to_gdf,
+    group_elanvandning,
+    compute_summary_stats,
     _get_largest_area_geometry,
     _validate_geometries,
 )
@@ -177,19 +181,68 @@ def test_calculate_energy_statistics():
 
 
 def test_compute_summary_stats():
-    pass
+    df = pd.DataFrame(
+        {
+            "rid": [1, 2, 3],
+            "lp": [[10.0, 12.5], [8.0, 9.0, 7.5], [14.0]],
+        }
+    )
+
+    result = compute_summary_stats(df)
+
+    assert len(result) == 3  # One for each unique rid
+    assert result.iloc[0]["rid"] == 1
+    assert result.iloc[0]["ea"] == 22.5
+    assert result.iloc[0]["eb"] == 12.5
 
 
 def test_group_elanvandning():
-    pass
+    df = pd.DataFrame(
+        {
+            "rid": [1, 1, 2, 2, 2, 3],
+            "Elanvandning": [10.0, 12.5, 8.0, 9.0, 7.5, 14.0],
+        }
+    )
+
+    result = group_elanvandning(df)
+    print(result)
+    assert len(result) == 3  # One for each unique rid
+    assert result["rid"].tolist() == [1, 2, 3]
+    assert result.iloc[0]["lp"] == [10.0, 12.5]
+    assert result.iloc[1]["lp"] == [8.0, 9.0, 7.5]
+    assert result.iloc[2]["lp"] == [14.0]
 
 
 def test_to_gdf():
-    pass
+    df = pd.DataFrame(
+        {
+            "rid": [1, 2],
+            "geometry": [Point(0, 0), Point(1, 1)],
+        }
+    )
+
+    gdf = to_gdf(df, crs="EPSG:3006")
+
+    assert isinstance(gdf, gpd.GeoDataFrame)
+    assert gdf.crs == "EPSG:3006"
 
 
 def test_polygon_intersection():
-    pass
+    # Define two polygons that intersect
+    poly1 = Polygon([(0, 0), (2, 0), (2, 2), (0, 2)])
+    poly2 = Polygon([(1, 1), (3, 1), (3, 3), (1, 3)])
+
+    gdf1 = gpd.GeoDataFrame({"rid": [1]}, geometry=[poly1], crs="EPSG:3006")
+    gdf2 = gpd.GeoDataFrame({"rid": [1]}, geometry=[poly2], crs="EPSG:3006")
+
+    result = polygon_intersection(gdf1, gdf2)
+
+    # One intersecting polygon should exist
+    assert len(result) == 1
+
+    # Check that the intersection geometry is correct
+    expected_geom = poly1.intersection(poly2)
+    assert result.geometry.iloc[0].equals_exact(expected_geom, tolerance=1e-6)
 
 
 def test__validate_geometries(capsys):
@@ -249,3 +302,7 @@ def test_largest_area():
     assert len(result) == 2  # One for each unique rid
     assert set(result["rid"]) == {1, 2}
     assert "area" not in result.columns
+
+
+if __name__ == "__main__":
+    test_group_elanvandning()
