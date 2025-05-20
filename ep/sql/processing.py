@@ -19,7 +19,7 @@ def db_years(tables: list[str]) -> list[int]:
     years = []
     for table in tables:
         # Get the year from the file name
-        year = int(table.split("_")[1])
+        year = table.split("_")[1]
         if year not in years:
             years.append(year)
     return sorted(years)

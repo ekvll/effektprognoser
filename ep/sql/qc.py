@@ -9,16 +9,15 @@ def has_no_all_nan_columns(df: pd.DataFrame) -> bool:
     return not any(df[col].isna().all() for col in df.columns)
 
 
-def has_complete_days(df: pd.DataFrame, year: int) -> bool:
-    days_in_df = int(df.shape[0] / df.tid.nunique())
-    expected_days = 8784 if year in [2020, 2040] else 8760
+def has_complete_days(df: pd.DataFrame, year: int | str) -> bool:
+    if isinstance(year, int):
+        year = str(year)
+    days_in_df = int(df.shape[0] / df.rid.nunique())
+    expected_days = 8784 if year in ["2020", "2040"] else 8760
     return days_in_df == expected_days
 
 
-def qc(df: pd.DataFrame, year: int) -> bool:
-    if isinstance(year, str):
-        year = int(year)
-
+def qc(df: pd.DataFrame, year: int | str) -> bool:
     checks = {
         "no all-zero columns": has_no_all_zero_columns(df),
         "no all-NaN columns": has_no_all_nan_columns(df),
