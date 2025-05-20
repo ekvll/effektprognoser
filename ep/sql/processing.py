@@ -119,13 +119,13 @@ def polygon_intersection(
     gdf: gpd.GeoDataFrame, intersect: gpd.GeoDataFrame
 ) -> gpd.GeoDataFrame:
     """Perform intersection of two GeoDataFrames."""
-    gdf = validate_geometries(gdf)
-    intersect = validate_geometries(intersect)
+    gdf = _validate_geometries(gdf)
+    intersect = _validate_geometries(intersect)
 
     return gpd.overlay(gdf, intersect, how="intersection")
 
 
-def validate_geometries(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+def _validate_geometries(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     """Drop invalid geometries from a GeoDataFrame."""
     if not gdf.is_valid.all():
         gdf = gdf[gdf.is_valid].reset_index(drop=True)
@@ -133,14 +133,14 @@ def validate_geometries(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     return gdf
 
 
-def get_largest_area_geometry(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
-    gdf_uid = gdf.assign(area=gdf.geometry.area / 10**6).reset_index(drop=True)
+def _get_largest_area_geometry(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    gdf = gdf.assign(area=gdf.geometry.area / 10**6).reset_index(drop=True)
 
-    idx_max_area = gdf_uid.area.idxmax()
+    idx_max_area = gdf.area.idxmax()
 
-    gdf_dissolve = gdf_uid.dissolve()
+    gdf_dissolve = gdf.dissolve()
 
-    gdf_max = gdf_uid.iloc[[idx_max_area]]
+    gdf_max = gdf.iloc[[idx_max_area]]
     gdf_max = gdf_max.assign(geometry=gdf_dissolve.iloc[0]["geometry"])
 
     return gdf_max
@@ -148,10 +148,20 @@ def get_largest_area_geometry(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
 
 def largest_area(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     """Get the largest area geometry from a GeoDataFrame."""
-    result = gpd.GeoDataFrame()
+    results = []
 
     for uid in gdf.rid.unique():
         gdf_uid = to_gdf(gdf[gdf.rid == uid], crs="EPSG:3006")
 
-        if gdf_uid.shape[0] > 1:
-            pass
+        if len(gdf_uid) > 1:
+            largest = _get_largest_area_geometry(gdf_uid)
+            results.append(largest)
+
+        else:
+            results.append(gdf_uid)
+
+    gdf_out = pd.concat(results, ignore_index=True)
+    if "area" in gdf_out.columns:
+        gdf_out = drop_column(gdf_out, "area")
+
+    return gdf_out

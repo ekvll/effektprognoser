@@ -1,8 +1,9 @@
 import sqlite3
 import pytest
 import pandas as pd
+import geopandas as gpd
 import numpy as np
-from shapely.geometry import Point
+from shapely.geometry import Point, Polygon
 
 from ep.sql.processing import (
     db_tables,
@@ -12,7 +13,14 @@ from ep.sql.processing import (
     sort_df,
     drop_column,
     add_geometry,
+    largest_area,
+    _get_largest_area_geometry,
+    _validate_geometries,
 )
+
+
+poly_small = Polygon([(0, 0), (1, 0), (1, 1), (0, 1)])
+poly_large = Polygon([(0, 0), (2, 0), (2, 2), (0, 2)])
 
 
 def test_db_tables_returns_table_names() -> None:
@@ -184,5 +192,60 @@ def test_polygon_intersection():
     pass
 
 
-def test_validate_geometries():
-    pass
+def test__validate_geometries(capsys):
+    # Valid square polygon
+    valid_polygon = Polygon([(0, 0), (1, 0), (1, 1), (0, 1)])
+
+    # Invalid polygon (self-intersecting bowtie)
+    invalid_polygon = Polygon([(0, 0), (1, 1), (1, 0), (0, 1), (0, 0)])
+
+    gdf = gpd.GeoDataFrame(
+        {
+            "rid": [1, 2],
+            "geometry": [valid_polygon, invalid_polygon],
+        },
+        crs="EPSG:3006",
+    )
+
+    result = _validate_geometries(gdf)
+
+    # Assert that only 1 row remains
+    assert len(result) == 1
+    assert result.iloc[0]["rid"] == 1
+
+    # Capture and assert stdout
+    captured = capsys.readouterr()
+    assert "Dropped invalid geometries" in captured.out
+
+
+def test__get_largest_area_geometry():
+    global poly_small, poly_large
+
+    df = gpd.GeoDataFrame(
+        {
+            "rid": [1, 1],
+            "geometry": [poly_small, poly_large],
+        },
+        crs="EPSG:3006",
+    )
+
+    result = _get_largest_area_geometry(df)
+
+    assert len(result) == 1
+    assert result.iloc[0].geometry.equals(poly_small.union(poly_large))
+    assert result.iloc[0]["rid"] == 1
+
+
+def test_largest_area():
+    global poly_small, poly_large
+
+    df = gpd.GeoDataFrame(
+        {"rid": [1, 1, 2], "geometry": [poly_small, poly_large, poly_small]},
+        crs="EPSG:3006",
+    )
+
+    result = largest_area(df)
+
+    assert len(result) == 2  # One for each unique rid
+    assert set(result["rid"]) == {1, 2}
+    assert "area" not in result.columns
