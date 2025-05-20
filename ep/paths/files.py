@@ -1,4 +1,3 @@
-import os
 import geopandas as gpd
 from pathlib import Path
 from typing import Optional

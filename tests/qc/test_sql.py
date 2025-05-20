@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
 
-from ep.sql.qc import has_complete_days
+from ep.qc import has_complete_days
 
 
 def test_has_complete_days():

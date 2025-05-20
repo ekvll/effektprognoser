@@ -3,7 +3,7 @@ import tempfile
 import os
 import pytest
 
-from ep.sql.connection import connect_to_db, get_cursor, validate_connection, db_connect
+from ep.data_manager import connect_to_db, get_cursor, validate_connection, db_connect
 
 
 def test_connect_to_db_success() -> None:

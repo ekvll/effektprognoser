@@ -2,7 +2,7 @@ import sqlite3
 import pandas as pd
 import pytest
 
-from ep.sql.load import (
+from ep.data_manager import (
     get_column_names,
     build_select_query,
     format_df,

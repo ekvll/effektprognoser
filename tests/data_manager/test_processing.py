@@ -5,7 +5,7 @@ import geopandas as gpd
 import numpy as np
 from shapely import Point, Polygon
 
-from ep.sql.processing import (
+from ep.data_manager import (
     db_tables,
     db_years,
     drop_nan_row,
@@ -19,8 +19,8 @@ from ep.sql.processing import (
     group_elanvandning,
     compute_summary_stats,
     calculate_energy_statistics,
-    _get_largest_area_geometry,
-    _validate_geometries,
+    get_largest_area_geometry,
+    validate_geometries,
 )
 
 
@@ -278,7 +278,7 @@ def test__validate_geometries(capsys):
         crs="EPSG:3006",
     )
 
-    result = _validate_geometries(gdf)
+    result = validate_geometries(gdf)
 
     # Assert that only 1 row remains
     assert len(result) == 1
@@ -300,7 +300,7 @@ def test__get_largest_area_geometry():
         crs="EPSG:3006",
     )
 
-    result = _get_largest_area_geometry(df)
+    result = get_largest_area_geometry(df)
 
     assert len(result) == 1
     assert result.iloc[0].geometry.equals(poly_small.union(poly_large))

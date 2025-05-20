@@ -125,13 +125,13 @@ def polygon_intersection(
     gdf: gpd.GeoDataFrame, intersect: gpd.GeoDataFrame
 ) -> gpd.GeoDataFrame:
     """Perform intersection of two GeoDataFrames."""
-    gdf = _validate_geometries(gdf)
-    intersect = _validate_geometries(intersect)
+    gdf = validate_geometries(gdf)
+    intersect = validate_geometries(intersect)
 
     return gpd.overlay(gdf, intersect, how="intersection")
 
 
-def _validate_geometries(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+def validate_geometries(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     """Drop invalid geometries from a GeoDataFrame."""
     if not gdf.is_valid.all():
         gdf = gdf[gdf.is_valid].reset_index(drop=True)
@@ -139,7 +139,7 @@ def _validate_geometries(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     return gdf
 
 
-def _get_largest_area_geometry(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+def get_largest_area_geometry(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     gdf = gdf.assign(area=gdf.geometry.area / 10**6).reset_index(drop=True)
 
     idx_max_area = gdf.area.idxmax()
@@ -160,7 +160,7 @@ def largest_area(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
         gdf_uid = to_gdf(gdf[gdf.rid == uid], crs="EPSG:3006")
 
         if len(gdf_uid) > 1:
-            largest = _get_largest_area_geometry(gdf_uid)
+            largest = get_largest_area_geometry(gdf_uid)
             results.append(largest)
 
         else:

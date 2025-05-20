@@ -1,17 +1,14 @@
-import os
 import pytest
-import pandas as pd
 import geopandas as gpd
 from shapely import Point
-from pathlib import Path
 
-from ep.files import parquet_filenames, load_parquet
+from ep.paths import parquet_filenames, load_parquet
 
 
 # Patch PARQUET_DIR during the test
 @pytest.fixture
 def patch_parquet_dir(monkeypatch, tmp_path):
-    monkeypatch.setattr("ep.files.PARQUET_DIR", str(tmp_path))
+    monkeypatch.setattr("ep.paths.files.PARQUET_DIR", str(tmp_path))
     return tmp_path
 
 
@@ -48,7 +45,7 @@ def temp_parquet_file(tmp_path, monkeypatch):
     df.to_parquet(file_path)
 
     # Patch the global PARQUET_DIR to point to tmp_path
-    monkeypatch.setattr("ep.files.PARQUET_DIR", str(tmp_path))
+    monkeypatch.setattr("ep.paths.files.PARQUET_DIR", str(tmp_path))
 
     return "sample.parquet", region, df
 

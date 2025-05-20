@@ -2,7 +2,7 @@ import os
 import pytest
 from unittest import mock
 
-from ep.sql.path import db_path
+from ep.paths import db_path
 
 
 def test_db_path_exists():
