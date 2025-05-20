@@ -64,7 +64,7 @@ def main(region):
 
 
 if __name__ == "__main__":
-    regions = ["10"]
+    from ep.config import regions
 
     for region in regions:
         main(region)
