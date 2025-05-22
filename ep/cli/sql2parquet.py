@@ -10,6 +10,24 @@ from typing import Optional
 
 from ep.config import SQL_DIR, PARQUET_DIR, BG_DIR
 
+"""
+This script processes SQLite database tables and converts them into Parquet files.
+
+It performs the following steps:
+1. Connects to the SQLite database.
+2. Retrieves the list of tables and years from the database.
+3. Filters tables by year.
+4. Loads data from the tables in chunks.
+5. Cleans and formats the data.
+6. Performs quality checks on the data.
+7. Calculates energy statistics.
+8. Adds geometry to the data.
+9. Performs polygon intersection with kommuner and natomrade.
+10. Saves the processed data as Parquet files.
+
+The script is designed to work with a specific database structure and assumes the presence of certain columns in the tables.
+"""
+
 
 def db_tables(cursor: sqlite3.Cursor) -> list[str]:
     """Get a list of all tables in the database."""
@@ -284,13 +302,40 @@ def load_table_chunks(
 
 def get_kommuner_in_region(filenames: list[str], region: str) -> list[str]:
     """Get the list of unique kommuner in the region from the parquet files."""
-    kommuner_set = set()
 
+    kommun_set = set()
     for filename in filenames:
-        gdf = load_parquet(filename, region, cols=["kn"])
-        kommuner_set.update(gdf["kn"].unique())
+        gdf = load_parquet(filename, region)
 
-    return sorted(list(kommuner_set))
+        for kn, kk in zip(gdf["kn"], gdf["kk"]):
+            kommun_set.add((kn, kk))
+
+    unique_kommuner: list[dict] = [
+        {"kommunnamn": kn, "kommunkod": kk} for kn, kk in kommun_set
+    ]
+
+    result = {"kommunnamn": [], "kommunkod": []}
+
+    for d in unique_kommuner:
+        result["kommunnamn"].append(d["kommunnamn"])
+        result["kommunkod"].append(d["kommunkod"])
+
+    x = region  # or x = 10
+
+    filtered_kommunnamn = []
+    filtered_kommunkod = []
+
+    for kn, kk in zip(result["kommunnamn"], result["kommunkod"]):
+        # Convert kommunkod to string and check first two digits
+        if str(kk).startswith(str(x)):
+            filtered_kommunnamn.append(kn)
+            filtered_kommunkod.append(kk)
+
+    filtered_result = {
+        "kommunnamn": filtered_kommunnamn,
+        "kommunkod": filtered_kommunkod,
+    }
+    return filtered_result
 
 
 def connect_to_db(path: str) -> sqlite3.Connection:

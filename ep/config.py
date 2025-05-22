@@ -13,6 +13,7 @@ DATA_DIR = PROJECT_ROOT / "data"
 BG_DIR = PROJECT_ROOT / "data" / "background"
 PARQUET_DIR = PROJECT_ROOT / "data" / "parquet"
 GEOJSON_DIR = PROJECT_ROOT / "data" / "geojson"
+EXCEL_DIR = PROJECT_ROOT / "data" / "excel"
 
 # Temporary directory for GeoJSON files
 GEOJSON_TMP_DIR = GEOJSON_DIR / "_tmp"
@@ -32,7 +33,15 @@ def validate_paths(paths: list[Path]) -> None:
                 raise FileNotFoundError(f"Path does not exist: {path}")
 
 
-paths = [SQL_DIR, DATA_DIR, BG_DIR, PARQUET_DIR, GEOJSON_DIR, GEOJSON_TMP_DIR]
+paths = [
+    SQL_DIR,
+    DATA_DIR,
+    BG_DIR,
+    PARQUET_DIR,
+    GEOJSON_DIR,
+    GEOJSON_TMP_DIR,
+    EXCEL_DIR,
+]
 validate_paths(paths)
 
 
@@ -46,7 +55,7 @@ def create_region_directories(paths: list[str], regions: list[str]) -> None:
 
 
 regions = ["06", "07", "08", "10", "12", "13"]
-paths_regions = [PARQUET_DIR, GEOJSON_DIR, GEOJSON_TMP_DIR]
+paths_regions = [PARQUET_DIR, GEOJSON_DIR, GEOJSON_TMP_DIR, EXCEL_DIR]
 create_region_directories(paths_regions, regions)
 
 

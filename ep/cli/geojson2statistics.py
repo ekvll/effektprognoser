@@ -9,6 +9,15 @@ from ep.config import GEOJSON_TMP_DIR, GEOJSON_DIR, raps_categories
 from ep.cli.parquet2geojson import save_geojson
 
 
+"""
+This script processes GeoJSON files and compares them to a reference GeoDataFrame.
+It merges the data for each category and year, and saves the results as GeoJSON files.
+
+
+The script is designed to work with the output of the parquet2geojson.py script.
+"""
+
+
 def geojson_tmp_filenames(region: str, tmp: bool = False) -> list[str]:
     """Get the list of parquet filenames for a given region."""
     if tmp:

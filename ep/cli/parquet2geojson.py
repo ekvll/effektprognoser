@@ -3,10 +3,8 @@ import numpy as np
 import geopandas as gpd
 
 from tqdm import tqdm
-from pathlib import Path
 
 from ep.config import (
-    PARQUET_DIR,
     GEOJSON_TMP_DIR,
     raps_categories,
     default_years,
@@ -14,10 +12,21 @@ from ep.config import (
 )
 from ep.cli.sql2parquet import parquet_filenames, load_parquet
 
+"""
+This script processes parquet files and converts them into GeoJSON format.
+It groups the parquet files into categories based on their filenames,
+merges the data for each category and year, and saves the results as GeoJSON files.
+"""
+
 
 def extract_raps_from_filename(filename: str) -> str:
     """
-    Extract the category from filename. For example, for filename 'EF_2022_RAPS_16_V1.parquet' the corresponding category is 'RAPS_16".
+    Extract the category from filename.
+
+    Example:
+        filename = "EF_2022_RAPS_16_V1.parquet"
+        category = extract_raps_from_filename(filename)
+        print(category)  # Output: "RAPS 16"
 
     Args:
         filename (str): Filename to extract category from.
@@ -120,18 +129,19 @@ def save_geojson(gdf, region, year, category, tmp: bool = False):
 
 
 def main(region: str) -> None:
-    tqdm.write(f"Processing region: {region}")
-    filenames = parquet_filenames(region)
-    raps_grouped = group_raps_into_categories_from_filenames(filenames)
-    for category, year, filenames in process_raps_grouped(raps_grouped):
-        tqdm.write(f"Category: {category}, Year: {year}, Filenames: {filenames}")
+    for region in regions:
+        tqdm.write(f"Processing region: {region}")
+        filenames = parquet_filenames(region)
+        raps_grouped = group_raps_into_categories_from_filenames(filenames)
+        for category, year, filenames in process_raps_grouped(raps_grouped):
+            tqdm.write(f"Category: {category}, Year: {year}, Filenames: {filenames}")
 
-        merged_filenames = merge_filenames_per_year(region, filenames, year)
-        gdf = restructure_merged_filenames(merged_filenames)
-        save_geojson(gdf, region, year, category)
+            merged_filenames = merge_filenames_per_year(region, filenames, year)
+            gdf = restructure_merged_filenames(merged_filenames)
+            save_geojson(gdf, region, year, category)
 
 
 if __name__ == "__main__":
-    regions = ["10"]
-    for region in regions:
-        main(region)
+    from ep.config import regions
+
+    main(regions)
