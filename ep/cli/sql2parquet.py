@@ -335,7 +335,25 @@ def get_kommuner_in_region(filenames: list[str], region: str) -> list[str]:
         "kommunnamn": filtered_kommunnamn,
         "kommunkod": filtered_kommunkod,
     }
-    return filtered_result
+
+    return sort_dictionary(filtered_result, "kommunnamn", "kommunkod")
+
+
+def sort_dictionary(d: dict, c1: str, c2: str) -> dict:
+    """Sort a dictionary by the first column and return a new dictionary."""
+    # Zip the lists together into tuples
+    combined = list(zip(d[c1], d[c2]))
+
+    # Sort by c1 (which is the firt element in each tuple)
+    combined_sorted = sorted(combined, key=lambda x: x[0])
+
+    # Unzip back to two lists
+    c1_sorted, c2_sorted = zip(*combined_sorted)
+
+    # Convert back to the dict format
+    sorted_dict = {c1: list(c1_sorted), c2: list(c2_sorted)}
+
+    return sorted_dict
 
 
 def connect_to_db(path: str) -> sqlite3.Connection:

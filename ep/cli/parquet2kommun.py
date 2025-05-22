@@ -1,19 +1,15 @@
 import numpy as np
 import pandas as pd
+import geopandas as gpd
 
 from openpyxl import load_workbook
 from openpyxl.chart import LineChart, Reference
-from openpyxl.utils import get_column_letter
-from openpyxl.chart.series import SeriesLabel
-from openpyxl.drawing.colors import ColorChoice
-from openpyxl.chart.series import Series
 from tqdm import tqdm
 
-from ep.cli.sql2parquet import parquet_filenames, as_parquet
 from ep.cli.sql2parquet import (
     get_kommuner_in_region,
+    parquet_filenames,
     load_parquet,
-    calc_total_loadprofile_per_kommun,
 )
 from ep.config import default_raps, default_years, EXCEL_DIR
 
@@ -87,6 +83,49 @@ def make_excel_with_chart(region, df, kommunnamn, kommunkod, effektbehov: bool) 
     wb.save(filepath)
 
 
+def gen_array_of_zeros(length: int) -> np.ndarray:
+    """Generate an array of zeros with the correct length based on the year."""
+    return np.zeros(length)
+
+
+def get_expected_length(year: int | str) -> int:
+    """Get the expected length of the load profile based on the year."""
+    if isinstance(year, int):
+        year = str(year)
+    return 8784 if year == "2040" else 8760
+
+
+def verify_array_length(array: np.ndarray, expected_length: int) -> None:
+    if array.shape[0] != expected_length:
+        raise ValueError(
+            f"Load profile has incorrect length: {array.shape[0]}, expected: {expected_length}"
+        )
+
+
+def get_year_and_raps(filename: str) -> tuple[str, str]:
+    """Extract year and RAPS from the filename."""
+    parts = filename.split("_")
+    year = parts[1]
+    raps = " ".join(parts[2:-1])
+    return year, raps
+
+
+def filter_df_by_kommun(
+    gdf: pd.DataFrame | gpd.GeoDataFrame, kommun: str
+) -> pd.DataFrame | gpd.GeoDataFrame:
+    """Filter the GeoDataFrame by the specified kommun."""
+    if "kn" not in gdf.columns:
+        raise ValueError("The GeoDataFrame does not contain a 'kn' column.")
+
+    gdf_kommun = gdf[gdf["kn"] == kommun]
+
+    if gdf_kommun.empty:
+        # tqdm.write(f"No data found for kommun: {kommun}")
+        return None
+
+    return gdf_kommun
+
+
 def main(region):
     tqdm.write(f"Processing region: {region}")
 
@@ -101,37 +140,32 @@ def main(region):
         df_elanvandning = pd.DataFrame(columns=default_years, index=default_raps)
 
         for filename in filenames:
-            year = filename.split("_")[1]
-            raps = " ".join(filename.split("_")[2:-1])
+            year, raps = get_year_and_raps(filename)
 
             gdf = load_parquet(filename, region)
-            gdf_kommun = gdf.loc[gdf["kn"] == kommun]
+            gdf_kommun = filter_df_by_kommun(gdf, kommun)
 
-            if gdf_kommun.empty:
-                # tqdm.write(f"{kommun}, in {year}, does not contain {raps}.")
-                continue
+            if gdf_kommun is None:
+                continue  # Skip if no data for the kommun
 
-            expected_length = 8784 if year == "2040" else 8760
-            aggregated_lp = np.zeros(expected_length)
+            expected_length = get_expected_length(year)
+            aggregated_lp = gen_array_of_zeros(expected_length)
 
-            for i, lp in enumerate(gdf_kommun["lp"]):
+            for _, lp in enumerate(gdf_kommun["lp"]):
                 lp_array = np.asarray(lp)
-                if lp_array.shape[0] != expected_length:
-                    raise ValueError(
-                        f"Load profile at index {i} has incorrect length: "
-                        f"{lp_array.shape[0]}, expected: {expected_length}"
-                    )
+                verify_array_length(lp_array, expected_length)
                 aggregated_lp += lp_array
 
             df_effektbehov.loc[raps, year] = max(aggregated_lp)
             df_elanvandning.loc[raps, year] = sum(aggregated_lp)
+
         make_excel_with_chart(
             region, df_effektbehov, kommun, kommunkod, effektbehov=True
         )
+
         make_excel_with_chart(
             region, df_elanvandning, kommun, kommunkod, effektbehov=False
         )
-    # as_parquet(gdf, region, f"{kommun_kod}_{kommun}", "_parquet2kommun_effektbehov")
 
 
 if __name__ == "__main__":

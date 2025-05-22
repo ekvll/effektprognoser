@@ -515,12 +515,16 @@ def test_get_kommuner_in_region():
     * That duplicates are removed.
     * That the result is sorted (for consistency in testing)."""
     filenames = ["file_2022.parquet", "file_2030.parquet"]
-    region = "test_region"
+    region = "10"
 
     # Mock return values for different files
     mock_returns = {
-        "file_2022.parquet": pd.DataFrame({"kn": ["A", "B", "C"]}),
-        "file_2030.parquet": pd.DataFrame({"kn": ["B", "C", "D"]}),
+        "file_2022.parquet": pd.DataFrame(
+            {"kn": ["A", "B", "C"], "kk": [101, 102, 103]}
+        ),
+        "file_2030.parquet": pd.DataFrame(
+            {"kn": ["B", "C", "D"], "kk": [102, 103, 104]}
+        ),
     }
 
     def mock_load_parquet(filename, region, cols=None):
@@ -528,7 +532,7 @@ def test_get_kommuner_in_region():
 
     with patch("ep.cli.sql2parquet.load_parquet", side_effect=mock_load_parquet):
         kommuner = get_kommuner_in_region(filenames, region)
-        assert kommuner == ["A", "B", "C", "D"]
+        assert kommuner["kommunnamn"] == ["A", "B", "C", "D"]
 
 
 def test_connect_to_db_success() -> None:
