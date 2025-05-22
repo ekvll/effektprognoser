@@ -541,6 +541,6 @@ def main(region):
 
 if __name__ == "__main__":
     # from ep.config import regions
-    regions = ["12"]
+    regions = ["13"]
     for region in regions:
         main(region)

@@ -12,6 +12,10 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = PROJECT_ROOT / "data"
 BG_DIR = PROJECT_ROOT / "data" / "background"
 PARQUET_DIR = PROJECT_ROOT / "data" / "parquet"
+GEOJSON_DIR = PROJECT_ROOT / "data" / "geojson"
+
+# Temporary directory for GeoJSON files
+GEOJSON_TMP_DIR = GEOJSON_DIR / "_tmp"
 
 
 def validate_paths(paths: list[Path]) -> None:
@@ -28,7 +32,7 @@ def validate_paths(paths: list[Path]) -> None:
                 raise FileNotFoundError(f"Path does not exist: {path}")
 
 
-paths = [SQL_DIR, DATA_DIR, BG_DIR, PARQUET_DIR]
+paths = [SQL_DIR, DATA_DIR, BG_DIR, PARQUET_DIR, GEOJSON_DIR, GEOJSON_TMP_DIR]
 validate_paths(paths)
 
 
@@ -42,7 +46,7 @@ def create_region_directories(paths: list[str], regions: list[str]) -> None:
 
 
 regions = ["06", "07", "08", "10", "12", "13"]
-paths_regions = [PARQUET_DIR]
+paths_regions = [PARQUET_DIR, GEOJSON_DIR, GEOJSON_TMP_DIR]
 create_region_directories(paths_regions, regions)
 
 
@@ -85,6 +89,36 @@ default_raps = [
 
 default_years = ["2022", "2027", "2030", "2040"]
 
+raps_categories = {
+    "total": default_raps,
+    "bostader": ["Flerbostadshus", "Smahus", "LOM Flerbostadshus", "LOM Smahus"],
+    "industri_och_bygg": [
+        "RAPS 4",
+        "RAPS 5",
+        "RAPS 6",
+        "RAPS 7",
+        "RAPS 8",
+        "RAPS 9",
+        "RAPS 10",
+        "RAPS 11",
+        "RAPS 13",
+        "RAPS 14",
+        "RAPS 15",
+        "RAPS 16",
+        "RAPS 17",
+        "RAPS 18",
+        "RAPS 19",
+        "RAPS 20",
+        "RAPS 21",
+        "RAPS 22",
+        "RAPS 23",
+        "RAPS 24",
+        "RAPS 27",
+    ],
+    "offentlig_och_privat_sektor": ["RAPS 7777", "RAPS 8888"],
+    "transport": ["PB", "LL", "TT DEP", "TT DEST", "TT RESTSTOP"],
+    "jordbruk_skogsbruk": ["RAPS 1 3"],
+}
 if __name__ == "__main__":
     for path in paths:
         tqdm.write(path)
