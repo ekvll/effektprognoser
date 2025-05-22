@@ -46,6 +46,45 @@ paths_regions = [PARQUET_DIR]
 create_region_directories(paths_regions, regions)
 
 
+default_raps = [
+    "Flerbostadshus",
+    "Smahus",
+    "LOM Flerbostadshus",
+    "LOM Smahus",
+    "RAPS 1 3",
+    "RAPS 4",
+    "RAPS 5",
+    "RAPS 6",
+    "RAPS 7",
+    "RAPS 8",
+    "RAPS 9",
+    "RAPS 10",
+    "RAPS 11",
+    "RAPS 12",
+    "RAPS 13",
+    "RAPS 14",
+    "RAPS 15",
+    "RAPS 16",
+    "RAPS 17",
+    "RAPS 18",
+    "RAPS 19",
+    "RAPS 20",
+    "RAPS 21",
+    "RAPS 22",
+    "RAPS 23",
+    "RAPS 24",
+    "RAPS 27",
+    "RAPS 7777",
+    "RAPS 8888",
+    "PB",
+    "LL",
+    "TT DEP",
+    "TT DEST",
+    "TT RESTSTOP",
+]
+
+default_years = ["2022", "2027", "2030", "2040"]
+
 if __name__ == "__main__":
     for path in paths:
         tqdm.write(path)

@@ -1,11 +1,19 @@
-import sqlite3
+import os
 import pytest
 import pandas as pd
 import geopandas as gpd
 import numpy as np
-from shapely import Point, Polygon
+import sqlite3
+import tempfile
 
-from ep.data_manager import (
+from unittest import mock
+from shapely import Point, Polygon
+from unittest.mock import patch
+
+from ep.config import SQL_DIR, PARQUET_DIR
+from ep.cli.sql2parquet import has_complete_days
+from ep.cli.sql2parquet import parquet_filenames, load_parquet, db_path
+from ep.cli.sql2parquet import (
     db_tables,
     db_years,
     drop_nan_row,
@@ -22,6 +30,120 @@ from ep.data_manager import (
     get_largest_area_geometry,
     validate_geometries,
 )
+from ep.cli.sql2parquet import aggregate_loadprofile
+
+from ep.cli.sql2parquet import (
+    get_column_names,
+    build_select_query,
+    format_df,
+    load_table_chunks,
+)
+
+
+from ep.cli.sql2parquet import get_kommuner_in_region
+
+
+from ep.cli.sql2parquet import (
+    connect_to_db,
+    get_cursor,
+    validate_connection,
+    db_connect,
+)
+
+
+def test_has_complete_days():
+    df_2020 = pd.DataFrame(
+        {
+            "rid": [1] * 8784,
+            "Elanvandning": [1] * 8784,
+        }
+    )
+
+    assert has_complete_days(df_2020, 2020)
+    assert has_complete_days(df_2020, "2020")
+
+    df_2027 = pd.DataFrame(
+        {
+            "rid": [1] * 8760,
+            "Elanvandning": [1] * 8760,
+        }
+    )
+
+    assert has_complete_days(df_2027, 2027)
+    assert has_complete_days(df_2027, "2027")
+
+
+# Patch PARQUET_DIR during the test
+@pytest.fixture
+def patch_parquet_dir(monkeypatch, tmp_path):
+    monkeypatch.setattr("ep.cli.sql2parquet.PARQUET_DIR", str(tmp_path))
+    return tmp_path
+
+
+def test_parquet_filenames(patch_parquet_dir):
+    region = "test_region"
+    region_path = patch_parquet_dir / region
+    region_path.mkdir()
+
+    # Create dummy parquet files
+    (region_path / "file1.parquet").touch()
+    (region_path / "file2.parquet").touch()
+
+    result = parquet_filenames(region)
+    assert sorted(result) == ["file1.parquet", "file2.parquet"]
+
+
+@pytest.fixture
+def temp_parquet_file(tmp_path, monkeypatch):
+    region = "test_region"
+    region_path = tmp_path / region
+    region_path.mkdir()
+
+    df = gpd.GeoDataFrame(
+        {
+            "a": [1, 2],
+            "b": [3, 4],
+            "geometry": [Point(0, 0), Point(1, 1)],
+        },
+        geometry="geometry",
+        crs="EPSG:4326",
+    )
+
+    file_path = region_path / "sample.parquet"
+    df.to_parquet(file_path)
+
+    # Patch the global PARQUET_DIR to point to tmp_path
+    monkeypatch.setattr("ep.cli.sql2parquet.PARQUET_DIR", str(tmp_path))
+
+    return "sample.parquet", region, df
+
+
+def test_load_parquet_all_columns(temp_parquet_file):
+    filename, region, expected_df = temp_parquet_file
+    result = load_parquet(filename, region)
+    assert isinstance(result, gpd.GeoDataFrame)
+    assert result.equals(expected_df)
+
+
+def test_db_path_exists():
+    """Test that the database path exists for specific regions. Regions specified in 'regions' shall exist."""
+    regions = ["06", "07", "08", "10", "12", "13"]
+
+    for region in regions:
+        path = db_path(region)
+        assert os.path.isfile(path), f"Database file {path} not found."
+
+
+def test_db_path_missing():
+    """Test that the database path raises FileNotFoundError for missing regions."""
+    regions = ["01", "02", "03", "04", "05"]
+
+    for region in regions:
+        # Mock os.path.isfile to return False (simulating file not existing)
+        with mock.patch("os.path.isfile", return_value=False):
+            # Assert that FileNotFoundError is raised
+            with pytest.raises(FileNotFoundError):
+                db_path(region)
 
 
 poly_small = Polygon([(0, 0), (1, 0), (1, 1), (0, 1)])
@@ -322,5 +444,118 @@ def test_largest_area():
     assert "area" not in result.columns
 
 
-if __name__ == "__main__":
-    test_group_elanvandning()
+def test_aggregate_loadprofile_valid():
+    year = "2022"
+    loadprofiles = [
+        np.ones(8760),
+        np.full(8760, 2),
+        np.arange(8760),
+    ]
+
+    gdf = pd.DataFrame({"lp": loadprofiles})
+
+    result = aggregate_loadprofile(gdf, year)
+
+    expected = np.ones(8760) + np.full(8760, 2) + np.arange(8760)
+
+    np.testing.assert_array_equal(result, expected)
+
+
+def test_get_column_names_returns_correct_names() -> None:
+    conn = sqlite3.connect(":memory:")
+    cursor = conn.cursor()
+    cursor.execute("CREATE TABLE test (id INTEGER, name TEXT);")
+
+    cols = get_column_names(cursor, "test")
+
+    assert cols == ["id", "name"]
+
+    conn.close()
+
+
+def test_format_df_renames_and_sorts() -> None:
+    df = pd.DataFrame(
+        {
+            "rut_id": [2, 1, 1],
+            "Tidpunkt": ["2025-05-13", "2025-05-14", "2025-05-15"],
+            "value": [300, 100, 200],
+        }
+    )
+
+    formatted = format_df(df)
+
+    assert list(formatted.columns) == ["rid", "Tidpunkt", "value"]
+    assert formatted.iloc[0]["rid"] == 1  # First row after sorting
+    assert formatted.iloc[0]["Tidpunkt"] == "2025-05-14"
+
+
+def test_load_table_chunks() -> None:
+    conn = sqlite3.connect(":memory:")
+    cursor = conn.cursor()
+    cursor.execute("CREATE TABLE test (rut_id INTEGER, Tidpunkt TEXT, value REAL);")
+    cursor.executemany(
+        "INSERT INTO test (rut_id, Tidpunkt, value) VALUES (?, ?, ?);",
+        [(1, "2025-05-13", 300), (2, "2025-05-14", 100), (1, "2025-05-15", 200)],
+    )
+    conn.commit()
+
+    df = load_table_chunks(conn, cursor, "test", chunk_size=2)
+
+    assert isinstance(df, pd.DataFrame)
+    assert df.shape == (3, 3)
+    assert list(df.columns) == ["rid", "Tidpunkt", "value"]
+    assert df.iloc[0]["rid"] == 1  # First row after sorting
+
+    conn.close()
+
+
+def test_get_kommuner_in_region():
+    """What this tests?
+    * That kommuner from multiple files are merged.
+    * That duplicates are removed.
+    * That the result is sorted (for consistency in testing)."""
+    filenames = ["file_2022.parquet", "file_2030.parquet"]
+    region = "test_region"
+
+    # Mock return values for different files
+    mock_returns = {
+        "file_2022.parquet": pd.DataFrame({"kn": ["A", "B", "C"]}),
+        "file_2030.parquet": pd.DataFrame({"kn": ["B", "C", "D"]}),
+    }
+
+    def mock_load_parquet(filename, region, cols=None):
+        return mock_returns[filename]
+
+    with patch("ep.cli.sql2parquet.load_parquet", side_effect=mock_load_parquet):
+        kommuner = get_kommuner_in_region(filenames, region)
+        assert kommuner == ["A", "B", "C", "D"]
+
+
+def test_connect_to_db_success() -> None:
+    with tempfile.NamedTemporaryFile(suffix=".sqlite") as tmp:
+        conn = connect_to_db(tmp.name)
+        assert isinstance(conn, sqlite3.Connection)
+        conn.close()
+
+
+def test_get_cursor() -> None:
+    with tempfile.NamedTemporaryFile(suffix=".sqlite") as tmp:
+        conn = sqlite3.connect(tmp.name)
+        cursor = get_cursor(conn)
+        assert isinstance(cursor, sqlite3.Cursor)
+        conn.close()
+
+
+def test_validate_connection_success() -> None:
+    with tempfile.NamedTemporaryFile(suffix=".sqlite") as tmp:
+        conn = sqlite3.connect(tmp.name)
+        validate_connection(conn)
+        conn.close()
+
+
+def test_db_connect_success() -> None:
+    with tempfile.NamedTemporaryFile(suffix=".sqlite") as tmp:
+        conn, cursor = db_connect(tmp.name)
+        assert isinstance(conn, sqlite3.Connection)
+        assert isinstance(cursor, sqlite3.Cursor)
+        conn.close()
