@@ -13,18 +13,96 @@ from ep.cli.sql2parquet import (
 )
 from ep.config import default_raps, default_years, EXCEL_DIR
 
+"""
+This script processes parquet files for a specific region. It generates Excel files with charts for effektbehov and elanvändning based on the data in the parquet files.
 
-def save_df_as_excel(df, filename):
+It performs the following steps:
+1. Load parquet filenames for the specified region.
+2. Get the list of kommuner in the region.
+3. For each kommun, create DataFrames for effektbehov and elanvändning.
+4. For each parquet file, load the data and filter it by the current kommun.
+5. Aggregate the load profiles and calculate the maximum and sum for effektbehov and elanvändning.
+6. Generate Excel filenames and file paths based on the kommun and year.
+7. Save the DataFrames as Excel files with charts.
+"""
+
+
+def save_df_as_excel(df: pd.DataFrame | gpd.GeoDataFrame, filename: str) -> None:
+    """
+    Save a DataFrame or GeoDataFrame to an Excel file.
+
+    Args:
+        df (pd.DataFrame | gpd.GeoDataFrame): The DataFrame or GeoDataFrame to save.
+        filename (str): The path where the Excel file will be saved.
+
+    Returns:
+        None
+
+    Example:
+        >>> df = pd.DataFrame({'A': [1, 2], 'B': [3, 4]})
+        >>> save_df_as_excel(df, 'output.xlsx')
+    """
     df.to_excel(filename, sheet_name="Data")
 
 
-def make_excel_with_chart(region, df, kommunnamn, kommunkod, effektbehov: bool) -> None:
+def gen_excel_filename(s1: str, s2: str, effektbehov: bool) -> str:
+    """
+    Generate an Excel filename based on the provided strings and effektbehov flag.
+
+    Args:
+        s1 (str): The first string to include in the filename.
+        s2 (str): The second string to include in the filename.
+        effektbehov (bool): Whether to include 'effektbehov' in the filename.
+
+    Returns:
+        str: The generated Excel filename.
+
+    Example:
+        >>> gen_excel_filename("1012", "Karlshamn", True)
+        '1012_Karlshamn_effektbehov.xlsx'
+    """
+    filename = f"{s1}_{s2}"
+    filename += "_effektbehov" if effektbehov else "_elanvandning"
+    filename += ".xlsx"
+    return filename
+
+
+def gen_excel_filepath(region: str, filename: str) -> str:
+    """
+    Generate the full file path for an Excel file based on the region and filename.
+
+    Args:
+        region (str): The region for which the Excel file is created.
+        filename (str): The name of the Excel file.
+
+    Returns:
+        str: The full file path for the Excel file.
+
+    Example:
+        >>> gen_excel_filepath("10", "kommun_2023_effektbehov.xlsx")
+        'path/to/excel/10/kommun_2023_effektbehov.xlsx'
+    """
+    return EXCEL_DIR / region / filename
+
+
+def make_excel_with_chart(
+    df: pd.DataFrame | gpd.GeoDataFrame,
+    filepath: str,
+    effektbehov: bool,
+) -> None:
+    """
+    Create an Excel file with a chart based on the provided DataFrame.
+
+    Args:
+        df (pd.DataFrame | gpd.GeoDataFrame): The DataFrame containing the data to be plotted.
+        filepath (str): The path where the Excel file will be saved.
+        effektbehov (bool): Whether to create a chart for effektbehov or elanvändning.
+
+    Returns:
+        None
+    """
     df_transposed = df.transpose()
 
-    filename = f"{kommunkod}_{kommunnamn}"
-    filename += "_effektbehov.xlsx" if effektbehov else "_elanvandning.xlsx"
-
-    filepath = EXCEL_DIR / region / filename
     save_df_as_excel(df_transposed, filepath)
 
     wb = load_workbook(filepath)
@@ -84,18 +162,61 @@ def make_excel_with_chart(region, df, kommunnamn, kommunkod, effektbehov: bool) 
 
 
 def gen_array_of_zeros(length: int) -> np.ndarray:
-    """Generate an array of zeros with the correct length based on the year."""
+    """
+    Generate an array of zeros with the correct length based on the year.
+
+    Args:
+        length (int): The length of the array to generate.
+
+    Returns:
+        np.ndarray: An array of zeros with the specified length.
+
+    Example:
+        >>> gen_array_of_zeros(8760)
+        array([0., 0., 0., ..., 0., 0., 0.])
+    """
     return np.zeros(length)
 
 
 def get_expected_length(year: int | str) -> int:
-    """Get the expected length of the load profile based on the year."""
+    """
+    Get the expected length of the load profile based on the year.
+
+    Args:
+        year (int | str): The year for which to get the expected length.
+
+    Returns:
+        int: The expected length of the load profile array.
+
+    Example:
+        >>> get_expected_length(2023)
+        8760
+        >>> get_expected_length("2040")
+        8784
+    """
     if isinstance(year, int):
         year = str(year)
+
     return 8784 if year == "2040" else 8760
 
 
 def verify_array_length(array: np.ndarray, expected_length: int) -> None:
+    """
+    Verify that the array has the expected length.
+
+    Args:
+        array (np.ndarray): The array to verify.
+        expected_length (int): The expected length of the array.
+
+    Returns:
+        None
+
+    Raises:
+        ValueError: If the array does not have the expected length.
+
+    Example:
+        >>> verify_array_length(np.zeros(8760), 8760)
+    """
     if array.shape[0] != expected_length:
         raise ValueError(
             f"Load profile has incorrect length: {array.shape[0]}, expected: {expected_length}"
@@ -103,7 +224,19 @@ def verify_array_length(array: np.ndarray, expected_length: int) -> None:
 
 
 def get_year_and_raps(filename: str) -> tuple[str, str]:
-    """Extract year and RAPS from the filename."""
+    """
+    Extract year and RAPS from the filename.
+
+    Args:
+        filename (str): The filename to extract from.
+
+    Returns:
+        tuple[str, str]: A tuple containing the year and RAPS.
+
+    Example:
+        >>> get_year_and_raps("kommun_2023_raps1_raps2.parquet")
+        ('2023', 'raps1 raps2')
+    """
     parts = filename.split("_")
     year = parts[1]
     raps = " ".join(parts[2:-1])
@@ -113,7 +246,24 @@ def get_year_and_raps(filename: str) -> tuple[str, str]:
 def filter_df_by_kommun(
     gdf: pd.DataFrame | gpd.GeoDataFrame, kommun: str
 ) -> pd.DataFrame | gpd.GeoDataFrame:
-    """Filter the GeoDataFrame by the specified kommun."""
+    """
+    Filter the GeoDataFrame by the specified kommun.
+
+    Args:
+        gdf (pd.DataFrame | gpd.GeoDataFrame): The GeoDataFrame to filter.
+        kommun (str): The name of the kommun to filter by.
+
+    Returns:
+        pd.DataFrame | gpd.GeoDataFrame: A filtered GeoDataFrame containing only the specified kommun.
+
+    Raises:
+        ValueError: If the 'kn' column is not present in the GeoDataFrame.
+
+    Example:
+        >>> gdf = gpd.read_file("path/to/geojson")
+        >>> filtered_gdf = filter_df_by_kommun(gdf, "Uppsala")
+        >>> print(filtered_gdf)
+    """
     if "kn" not in gdf.columns:
         raise ValueError("The GeoDataFrame does not contain a 'kn' column.")
 
@@ -126,7 +276,30 @@ def filter_df_by_kommun(
     return gdf_kommun
 
 
-def main(region):
+def gen_df_from_defaults(
+    default_years: list[str], default_raps: list[str]
+) -> pd.DataFrame:
+    """
+    Generate a DataFrame with default years and RAPS categories.
+
+    Args:
+        default_years (list[str]): List of years to use as columns.
+        default_raps (list[str]): List of RAPS categories to use as index.
+
+    Returns:
+        pd.DataFrame: A DataFrame with the specified years as columns and RAPS categories as index.
+
+    Example:
+        >>> gen_df_from_defaults(['2023', '2040'], ['raps1', 'raps2'])
+        Empty DataFrame
+        Columns: [2023, 2040]
+        Index: [raps1, raps2]
+    """
+    return pd.DataFrame(columns=default_years, index=default_raps)
+
+
+def main(region: str) -> None:
+    """Main function to process the region and generate Excel files with charts."""
     tqdm.write(f"Processing region: {region}")
 
     filenames = parquet_filenames(region)
@@ -136,8 +309,11 @@ def main(region):
 
     for kommun, kommunkod in zip(kommuner["kommunnamn"], kommuner["kommunkod"]):
         tqdm.write(f"Processing kommun: {kommun}")
-        df_effektbehov = pd.DataFrame(columns=default_years, index=default_raps)
-        df_elanvandning = pd.DataFrame(columns=default_years, index=default_raps)
+
+        df_effektbehov = gen_df_from_defaults(default_years, default_raps)
+        df_elanvandning = gen_df_from_defaults(default_years, default_raps)
+        # df_effektbehov = pd.DataFrame(columns=default_years, index=default_raps)
+        # df_elanvandning = pd.DataFrame(columns=default_years, index=default_raps)
 
         for filename in filenames:
             year, raps = get_year_and_raps(filename)
@@ -159,13 +335,21 @@ def main(region):
             df_effektbehov.loc[raps, year] = max(aggregated_lp)
             df_elanvandning.loc[raps, year] = sum(aggregated_lp)
 
-        make_excel_with_chart(
-            region, df_effektbehov, kommun, kommunkod, effektbehov=True
+        # Generate the Excel filename
+        filename_effektbehov = gen_excel_filename(
+            str(kommunkod), kommun, effektbehov=True
+        )
+        filename_elanvandning = gen_excel_filename(
+            str(kommunkod), kommun, effektbehov=False
         )
 
-        make_excel_with_chart(
-            region, df_elanvandning, kommun, kommunkod, effektbehov=False
-        )
+        # Generate the full file paths
+        filepath_effektbehov = gen_excel_filepath(region, filename_effektbehov)
+        filepath_elanvandning = gen_excel_filepath(region, filename_elanvandning)
+
+        make_excel_with_chart(df_effektbehov, filepath_effektbehov, effektbehov=True)
+
+        make_excel_with_chart(df_elanvandning, filepath_elanvandning, effektbehov=False)
 
 
 if __name__ == "__main__":

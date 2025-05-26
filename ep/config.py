@@ -5,6 +5,16 @@ from tqdm import tqdm
 # Absolute path to SQL directory (adjust as needed)
 SQL_DIR = Path("/mnt/d/effektprognoser/sqlite")
 
+# Ensure SQL_DIR exists
+if not SQL_DIR.exists():
+    existence = input(
+        f"SQL directory does not exist: {SQL_DIR}. Continue anyway? (y/n): "
+    )
+    if existence.lower() != "y":
+        pass
+    elif existence.lower() == "n":
+        raise FileNotFoundError(f"SQL directory does not exist: {SQL_DIR}")
+
 # Automatically resolve project root (2 levels above current file)
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
@@ -34,7 +44,6 @@ def validate_paths(paths: list[Path]) -> None:
 
 
 paths = [
-    SQL_DIR,
     DATA_DIR,
     BG_DIR,
     PARQUET_DIR,

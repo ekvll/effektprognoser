@@ -13,6 +13,13 @@ from ep.cli.parquet2geojson import save_geojson
 This script processes GeoJSON files and compares them to a reference GeoDataFrame.
 It merges the data for each category and year, and saves the results as GeoJSON files.
 
+THe following processes are performed:
+1. Load GeoJSON files for a specific region.
+2. For each category, filter the filenames and load the corresponding GeoDataFrame.
+3. Merge the GeoDataFrame with a reference GeoDataFrame based on 'rid'.
+4. Calculate differences and percent changes for 'eb' and 'ea' columns.
+5. Drop unnecessary columns and rename the remaining ones.
+6. Save the processed GeoDataFrame as a new GeoJSON file.
 
 The script is designed to work with the output of the parquet2geojson.py script.
 """

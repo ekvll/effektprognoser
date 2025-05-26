@@ -468,8 +468,25 @@ def load_natomrade() -> gpd.GeoDataFrame:
     return gdf
 
 
-def as_parquet(gdf, region, table, subdir=None):
-    """Save a GeoDataFrame as a Parquet file."""
+def as_parquet(
+    gdf: gpd.GeoDataFrame | pd.DataFrame, region: str, table: str, subdir: str = None
+) -> None:
+    """
+    Save a GeoDataFrame as a Parquet file.
+
+    Args:
+        gdf (gpd.GeoDataFrame | pd.DataFrame): The GeoDataFrame or DataFrame to save.
+        region (str): The region identifier.
+        table (str): The name of the table (used as the filename).
+        subdir (str, optional): Subdirectory within the region directory. Defaults to None.
+
+    Returns:
+        None: The function saves the GeoDataFrame as a Parquet file.
+
+    Example:
+        >>> as_parquet(gdf, "13", "2022_table1")
+        This will save the GeoDataFrame as '13/2022_table1.parquet' in the PARQUET_DIR.
+    """
     dirpath = os.path.join(PARQUET_DIR, region)
     if subdir:
         dirpath = os.path.join(dirpath, subdir)
@@ -479,7 +496,19 @@ def as_parquet(gdf, region, table, subdir=None):
 
 
 def parquet_filenames(region: str) -> list[str]:
-    """Get the list of parquet filenames for a given region."""
+    """
+    Get the list of all parquet filenames for a given region.
+
+    Args:
+        region (str): The region identifier.
+
+    Returns:
+        list[str]: A list of parquet filenames in the specified region directory.
+
+    Example:
+        >>> parquet_filenames("13")
+        ['2022_table1.parquet', '2022_table2.parquet', ...]
+    """
     region_path = Path(PARQUET_DIR) / region
 
     if not region_path.exists():
@@ -498,7 +527,21 @@ def parquet_filenames(region: str) -> list[str]:
 def load_parquet(
     filename: str, region: str, cols: Optional[list[str]] = None
 ) -> gpd.GeoDataFrame:
-    """Load a parquet file into a GeoDataFrame."""
+    """
+    Load a parquet file into a GeoDataFrame.
+
+    Args:
+        filename (str): The name of the parquet file to load.
+        region (str): The region identifier.
+        cols (list[str], optional): List of columns to select from the GeoDataFrame. Defaults to None.
+
+    Returns:
+        gpd.GeoDataFrame: The loaded GeoDataFrame containing the specified columns.
+
+    Example:
+        >>> load_parquet("2022_table1.parquet", "13", cols=["rid", "geometry"])
+        This will load the specified columns from '13/2022_table1.parquet'.
+    """
     file_path = Path(PARQUET_DIR) / region / filename
 
     if not file_path.is_file():
