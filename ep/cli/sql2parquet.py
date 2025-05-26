@@ -41,12 +41,16 @@ def db_tables(cursor: sqlite3.Cursor) -> list[str]:
 
 def db_years(tables: list[str]) -> list[int]:
     """Get a list of all years from the file names."""
+
     years = []
+
     for table in tables:
         # Get the year from the file name
         year = table.split("_")[1]
+
         if year not in years:
             years.append(year)
+
     return sorted(years)
 
 
@@ -410,9 +414,22 @@ def load_gpkg(path: str, cols: list[str] = None, crs: str = None) -> gpd.GeoData
     return gdf
 
 
-def load_grid() -> gpd.GeoDataFrame:
-    """Load the grid data."""
-    path = os.path.join(BG_DIR, "RSS_Skane_squares.gpkg")
+def load_grid(filename: str = "RSS_Skane_squares.gpkg") -> gpd.GeoDataFrame:
+    """
+    Load the grid data from a GPKG file.
+
+    Args:
+        filename (str): The name of the GPKG file containing the grid data. Defaults to "RSS_Skane_squares.gpkg".
+
+    Returns:
+        gpd.GeoDataFrame: A GeoDataFrame containing the grid data with columns 'rid' and 'geometry'.
+
+    Example:
+        >>> grid = load_grid()
+        >>> grid.columns
+        Index(['rid', 'geometry'], dtype='object')
+    """
+    path = os.path.join(BG_DIR, filename)
 
     cols = ["rut_id", "geometry"]
     crs = "EPSG:3006"
@@ -582,6 +599,27 @@ def has_complete_days(df: pd.DataFrame, year: int | str) -> bool:
 
 
 def qc(df: pd.DataFrame, year: int | str) -> bool:
+    """
+    Perform quality checks on the DataFrame.
+
+    Args:
+        df (pd.DataFrame): The DataFrame to check.
+        year (int | str): The year associated with the data.
+
+    Returns:
+        bool: True if all checks pass, False otherwise.
+
+    This function performs the following checks:
+        - No all-zero columns
+        - No all-NaN columns
+        - Complete days for the specified year
+        - DataFrame is not empty
+
+    Example:
+        >>> df = pd.DataFrame({'rid': [1, 2], 'Elanvandning': [0.0, 1.0], 'Tidpunkt': [20220101, 20220102]})
+        >>> qc(df, 2022)
+        True
+    """
     checks = {
         "no all-zero columns": has_no_all_zero_columns(df),
         "no all-NaN columns": has_no_all_nan_columns(df),
@@ -625,7 +663,7 @@ def main(region):
     for year in tqdm(years, desc="Years", position=0, leave=False):
         tables_filtered = filter_tables(tables, year)
 
-        for table in tqdm(tables_filtered, desc="Tables", position=1, leave=True):
+        for table in tqdm(tables_filtered, desc="Tables", position=1, leave=False):
             df = load_table_chunks(conn, cursor, table)
             df = drop_nan_row(df, "rid")
             df = set_dtypes(df)

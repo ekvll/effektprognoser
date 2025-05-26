@@ -6,14 +6,14 @@ from tqdm import tqdm
 SQL_DIR = Path("/mnt/d/effektprognoser/sqlite")
 
 # Ensure SQL_DIR exists
-if not SQL_DIR.exists():
-    existence = input(
-        f"SQL directory does not exist: {SQL_DIR}. Continue anyway? (y/n): "
-    )
-    if existence.lower() != "y":
-        pass
-    elif existence.lower() == "n":
-        raise FileNotFoundError(f"SQL directory does not exist: {SQL_DIR}")
+# if not SQL_DIR.exists():
+#     existence = input(
+#         f"SQL directory does not exist: {SQL_DIR}. Continue anyway? (y/n): "
+#     )
+#     if existence.lower() != "y":
+#         pass
+#     elif existence.lower() == "n":
+#         raise FileNotFoundError(f"SQL directory does not exist: {SQL_DIR}")
 
 # Automatically resolve project root (2 levels above current file)
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -63,7 +63,7 @@ def create_region_directories(paths: list[str], regions: list[str]) -> None:
                 os.makedirs(region_path)
 
 
-regions = ["06", "07", "08", "10", "12", "13"]
+regions = ["06", "07", "08", "10", "12", "13", "alla"]
 paths_regions = [PARQUET_DIR, GEOJSON_DIR, GEOJSON_TMP_DIR, EXCEL_DIR]
 create_region_directories(paths_regions, regions)
 
