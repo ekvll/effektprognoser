@@ -104,7 +104,7 @@ def merge_filenames_per_year(region, filenames: list[str], year) -> dict:
     return result
 
 
-def restructure_merged_filenames(merged_filenames: dict) -> dict:
+def restructure_merged_filenames(merged_filenames: dict) -> gpd.GeoDataFrame:
     records = []
     for rid, loadprofile in merged_filenames.items():
         records.append(
@@ -119,7 +119,14 @@ def restructure_merged_filenames(merged_filenames: dict) -> dict:
     return gpd.GeoDataFrame(records, crs="EPSG:3006")
 
 
-def save_geojson(gdf, region, year, category, tmp: bool = False):
+def save_geojson(
+    gdf: gpd.GeoDataFrame,
+    region: str,
+    year: str | int,
+    category: str,
+    tmp: bool = False,
+) -> None:
+    """Save the GeoDataFrame as a GeoJSON file."""
     if tmp:
         path_output = os.path.join(GEOJSON_TMP_DIR, region)
     else:
@@ -129,6 +136,8 @@ def save_geojson(gdf, region, year, category, tmp: bool = False):
 
 
 def main(region: str) -> None:
+    """Main function to process the parquet files and convert them to GeoJSON."""
+
     for region in regions:
         tqdm.write(f"Processing region: {region}")
         filenames = parquet_filenames(region)
