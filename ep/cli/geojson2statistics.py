@@ -114,6 +114,10 @@ def main(region):
 
 
 if __name__ == "__main__":
-    regions = ["10"]
+    tqdm.write("geojson2statistics")
+
+    from ep.config import regions
+
+    # regions = ["10"]
     for region in regions:
         main(region)

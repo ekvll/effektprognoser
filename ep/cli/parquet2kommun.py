@@ -302,7 +302,10 @@ def main(region: str) -> None:
     """Main function to process the region and generate Excel files with charts."""
     tqdm.write(f"Processing region: {region}")
 
+    # Get the parquet filenames for the specified region
     filenames = parquet_filenames(region)
+
+    # Get a list of kommuner found within the filenames
     kommuner = get_kommuner_in_region(filenames, region)
 
     tqdm.write(f"Found {len(kommuner['kommunnamn'])} kommuner in region {region}:")
@@ -312,8 +315,6 @@ def main(region: str) -> None:
 
         df_effektbehov = gen_df_from_defaults(default_years, default_raps)
         df_elanvandning = gen_df_from_defaults(default_years, default_raps)
-        # df_effektbehov = pd.DataFrame(columns=default_years, index=default_raps)
-        # df_elanvandning = pd.DataFrame(columns=default_years, index=default_raps)
 
         for filename in filenames:
             year, raps = get_year_and_raps(filename)
@@ -347,13 +348,15 @@ def main(region: str) -> None:
         filepath_effektbehov = gen_excel_filepath(region, filename_effektbehov)
         filepath_elanvandning = gen_excel_filepath(region, filename_elanvandning)
 
+        # Save the DataFrames as Excel files with charts
         make_excel_with_chart(df_effektbehov, filepath_effektbehov, effektbehov=True)
-
         make_excel_with_chart(df_elanvandning, filepath_elanvandning, effektbehov=False)
 
 
 if __name__ == "__main__":
-    # from ep.config import regions
-    regions = ["10"]
+    tqdm.write("ep.cli.parquet2kommun")
+    from ep.config import regions
+
+    # regions = ["10"]
     for region in regions:
         main(region)

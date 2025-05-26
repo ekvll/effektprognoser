@@ -287,7 +287,10 @@ def build_select_query(table: str, columns: list[str]) -> str:
 
 
 def load_table_chunks(
-    conn: sqlite3.Connection, cursor: sqlite3.Cursor, table: str, chunk_size: int = 1000
+    conn: sqlite3.Connection,
+    cursor: sqlite3.Cursor,
+    table: str,
+    chunk_size: int = 10000,
 ) -> pd.DataFrame:
     """Load a table from a SQLite database in chunks."""
     columns = get_column_names(cursor, table)
@@ -430,7 +433,8 @@ def load_kommun() -> gpd.GeoDataFrame:
     """Load the kommun data."""
     path = os.path.join(BG_DIR, "RSS_Skane_kommuner.gpkg")
 
-    cols = ["KOMMUNNAMN", "KOMMUNKOD", "LANSKOD", "LANSNAMN", "geometry"]
+    # cols = ["KOMMUNNAMN", "KOMMUNKOD", "LANSKOD", "LANSNAMN", "geometry"]
+    cols = ["KOMMUNNAMN", "KOMMUNKOD", "geometry"]
     crs = "EPSG:3006"
 
     gdf = load_gpkg(path, cols, crs)
@@ -440,8 +444,8 @@ def load_kommun() -> gpd.GeoDataFrame:
         columns={
             "KOMMUNKOD": "kk",
             "KOMMUNNAMN": "kn",
-            "LANSNAMN": "lan",
-            "LANSKOD": "lan_id",
+            # "LANSNAMN": "lan",
+            # "LANSKOD": "lan_id",
         },
         inplace=True,
     )
@@ -618,18 +622,18 @@ def main(region):
     tables = db_tables(cursor)
     years = db_years(tables)
 
-    for year in years:
-        tqdm.write(f"Processing year: {year}")
+    for year in tqdm(years, desc="Years", position=0, leave=False):
         tables_filtered = filter_tables(tables, year)
 
-        for table in tqdm(tables_filtered, desc="Tables", position=0):
+        for table in tqdm(tables_filtered, desc="Tables", position=1, leave=True):
             df = load_table_chunks(conn, cursor, table)
             df = drop_nan_row(df, "rid")
             df = set_dtypes(df)
             df = sort_df(df, ["rid", "Tidpunkt"], [True, True])
 
             if not qc(df, year):
-                tqdm.write(f"Skipping table {table}.")
+                tqdm.write(f"Quality check failed for table {table}. Skipping.")
+                continue
 
             df = drop_column(df, "Tidpunkt")
             df = calculate_energy_statistics(df)
@@ -644,9 +648,14 @@ def main(region):
 
             as_parquet(gdf, region, table)
 
+    cursor.close()
+    conn.close()
+
 
 if __name__ == "__main__":
-    # from ep.config import regions
-    regions = ["13"]
+    tqdm.write("Starting sql2parquet script")
+    from ep.config import regions
+
+    # regions = ["12"]
     for region in regions:
         main(region)

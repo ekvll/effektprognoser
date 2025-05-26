@@ -1,5 +1,3 @@
-import geopandas as gpd
-import pandas as pd
 import numpy as np
 
 from tqdm import tqdm
@@ -69,7 +67,10 @@ def main(region: str) -> None:
 
 
 if __name__ == "__main__":
-    regions = ["10"]
+    tqdm.write("ep.cli.parquet2region")
+
+    from ep.config import regions
+    # regions = ["10"]
 
     for region in regions:
         main(region)

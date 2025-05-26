@@ -138,19 +138,21 @@ def save_geojson(
 def main(region: str) -> None:
     """Main function to process the parquet files and convert them to GeoJSON."""
 
-    for region in regions:
-        tqdm.write(f"Processing region: {region}")
-        filenames = parquet_filenames(region)
-        raps_grouped = group_raps_into_categories_from_filenames(filenames)
-        for category, year, filenames in process_raps_grouped(raps_grouped):
-            tqdm.write(f"Category: {category}, Year: {year}, Filenames: {filenames}")
+    tqdm.write(f"Processing region: {region}")
+    filenames = parquet_filenames(region)
+    raps_grouped = group_raps_into_categories_from_filenames(filenames)
+    for category, year, filenames in process_raps_grouped(raps_grouped):
+        tqdm.write(f"Category: {category}, Year: {year}, Filenames: {filenames}")
 
-            merged_filenames = merge_filenames_per_year(region, filenames, year)
-            gdf = restructure_merged_filenames(merged_filenames)
-            save_geojson(gdf, region, year, category)
+        merged_filenames = merge_filenames_per_year(region, filenames, year)
+        gdf = restructure_merged_filenames(merged_filenames)
+        save_geojson(gdf, region, year, category)
 
 
 if __name__ == "__main__":
+    tqdm.write("ep.cli.parquet2geojson")
+
     from ep.config import regions
 
-    main(regions)
+    for region in regions:
+        main(region)
