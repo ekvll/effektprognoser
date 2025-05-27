@@ -147,7 +147,7 @@ def main(region: str) -> None:
 
         merged_filenames = merge_filenames_per_year(region, filenames, year)
         gdf = restructure_merged_filenames(merged_filenames)
-        save_geojson(gdf, region, year, category)
+        save_geojson(gdf, region, year, category, tmp=True)
 
 
 if __name__ == "__main__":

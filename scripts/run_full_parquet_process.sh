@@ -4,7 +4,7 @@
 source .venv/bin/activate
 
 # Combine all regions into one
-python -m ep.cli.parquet2all
+python -m ep.cli.parquet2all_table
 
 # Convert parquet files to geojson format
 # This output is used in the webmap
