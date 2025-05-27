@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import geopandas as gpd
 import numpy as np
+from tqdm import tqdm
 from ep.config import default_raps, EXCEL_DIR
 from ep.cli.parquet2kommun import parquet_filenames, load_parquet
 
@@ -142,16 +143,19 @@ def save_to_excel(df_year_max, df_year, kommun, region):
 
 
 def main(region: str) -> None:
+    tqdm.write(f"Processing region {region}")
     filenames = parquet_filenames(region)
     kommuner = get_kommuner_in_region(filenames, region)
 
     lp_kommuner: dict = kommuner_loadprofile(filenames, kommuner, region)
     lp_max_time: dict = kommuner_max_time(filenames, kommuner, region, lp_kommuner)
+
+    tqdm.write("Processing load profiles.")
     process_lp(lp_kommuner, lp_max_time, region)
 
 
 if __name__ == "__main__":
     from ep.config import regions
 
-    for region in ["06"]:
+    for region in regions:
         main(region)

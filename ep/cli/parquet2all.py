@@ -19,7 +19,7 @@ def merge_files_with_raps():
     for category, category_raps in raps_categories.items():
         result[category] = []
 
-        for region in ["06", "07"]:
+        for region in regions:
             filenames = parquet_filenames(region)
 
             for raps in category_raps:
@@ -67,7 +67,7 @@ def collect_files(merged_files):
 
 def main():
     merged_files = merge_files_with_raps()
-    print_merged_files(merged_files)
+    # print_merged_files(merged_files)
 
     for category, year, df in collect_files(merged_files):
         tqdm.write(f"{category} {year}")

@@ -142,7 +142,8 @@ def main(region: str) -> None:
     filenames = parquet_filenames(region)
     raps_grouped = group_raps_into_categories_from_filenames(filenames)
     for category, year, filenames in process_raps_grouped(raps_grouped):
-        tqdm.write(f"Category: {category}, Year: {year}, Filenames: {filenames}")
+        # tqdm.write(f"Category: {category}, Year: {year}, Filenames: {filenames}")
+        tqdm.write(f"Category: {category}, Year: {year}")
 
         merged_filenames = merge_filenames_per_year(region, filenames, year)
         gdf = restructure_merged_filenames(merged_filenames)
@@ -152,7 +153,7 @@ def main(region: str) -> None:
 if __name__ == "__main__":
     tqdm.write("ep.cli.parquet2geojson")
 
-    from ep.config import regions
+    from ep.config import regions_alla
 
-    for region in regions:
+    for region in regions_alla:
         main(region)

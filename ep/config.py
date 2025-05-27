@@ -68,7 +68,9 @@ def create_region_directories(paths: list[str], regions: list[str]) -> None:
                 os.makedirs(region_path)
 
 
-regions = ["06", "07", "08", "10", "12", "13", "alla"]
+regions = ["06", "07", "08", "10", "12", "13"]
+regions_alla = ["06", "07", "08", "10", "12", "13", "alla"]
+
 paths_regions = [PARQUET_DIR, GEOJSON_DIR, GEOJSON_TMP_DIR, EXCEL_DIR]
 create_region_directories(paths_regions, regions)
 

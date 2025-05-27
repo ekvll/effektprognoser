@@ -699,5 +699,7 @@ if __name__ == "__main__":
 
     # Run from region 12 and onwards
     # regions = ["12"]
-    for region in regions[5:]:
+    for region in regions:
+        if region == "12":
+            continue
         main(region)

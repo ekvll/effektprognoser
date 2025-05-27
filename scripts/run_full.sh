@@ -3,6 +3,10 @@
 # Activate the Python virtual environment
 source .venv/bin/activate
 
+# Convert SQL database to parquet files
+python -m ep.cli.sql2parquet
+python -m ep.cli.sql2parquet_chunk # For region 12
+
 # Combine all regions into one
 python -m ep.cli.parquet2all
 
