@@ -1,3 +1,9 @@
+"""
+This script merges each unique parquet file across all regions into a single parquet file.
+
+For example, if there are parquet files for 'Smahus' in multiple regions, these will be merged into one file named 'Smahus.parquet' in the 'alla' region.
+"""
+
 import pandas as pd
 from tqdm import tqdm
 from ep.config import regions

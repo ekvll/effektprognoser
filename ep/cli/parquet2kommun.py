@@ -1,3 +1,16 @@
+"""
+This script processes parquet files for a specific region. It generates Excel files with charts for effektbehov and elanvändning based on the data in the parquet files.
+
+It performs the following steps:
+1. Load parquet filenames for the specified region.
+2. Get the list of kommuner in the region.
+3. For each kommun, create DataFrames for effektbehov and elanvändning.
+4. For each parquet file, load the data and filter it by the current kommun.
+5. Aggregate the load profiles and calculate the maximum and sum for effektbehov and elanvändning.
+6. Generate Excel filenames and file paths based on the kommun and year.
+7. Save the DataFrames as Excel files with charts.
+"""
+
 import numpy as np
 import pandas as pd
 import geopandas as gpd
@@ -12,19 +25,6 @@ from ep.cli.sql2parquet import (
     load_parquet,
 )
 from ep.config import default_raps, default_years, EXCEL_DIR
-
-"""
-This script processes parquet files for a specific region. It generates Excel files with charts for effektbehov and elanvändning based on the data in the parquet files.
-
-It performs the following steps:
-1. Load parquet filenames for the specified region.
-2. Get the list of kommuner in the region.
-3. For each kommun, create DataFrames for effektbehov and elanvändning.
-4. For each parquet file, load the data and filter it by the current kommun.
-5. Aggregate the load profiles and calculate the maximum and sum for effektbehov and elanvändning.
-6. Generate Excel filenames and file paths based on the kommun and year.
-7. Save the DataFrames as Excel files with charts.
-"""
 
 
 def save_df_as_excel(df: pd.DataFrame | gpd.GeoDataFrame, filename: str) -> None:

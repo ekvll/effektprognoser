@@ -1,3 +1,15 @@
+"""
+This script processes parquet files for a specific region. It generates Excel files with charts for effektbehov and elanvändning based on the data in the parquet files.
+
+It performs the following steps:
+1. Load parquet filenames for the specified region.
+3. Create output DataFrames for effektbehov and elanvändning.
+4. For each parquet file, load the data.
+5. Aggregate the load profiles and calculate the maximum and sum for effektbehov and elanvändning.
+6. Generate Excel filenames and file paths based on the year.
+7. Save the DataFrames as Excel files with charts.
+"""
+
 import numpy as np
 
 from tqdm import tqdm
@@ -14,18 +26,6 @@ from ep.cli.parquet2kommun import (
     gen_excel_filepath,
 )
 from ep.config import default_raps, default_years
-
-"""
-This script processes parquet files for a specific region. It generates Excel files with charts for effektbehov and elanvändning based on the data in the parquet files.
-
-It performs the following steps:
-1. Load parquet filenames for the specified region.
-3. Create output DataFrames for effektbehov and elanvändning.
-4. For each parquet file, load the data.
-5. Aggregate the load profiles and calculate the maximum and sum for effektbehov and elanvändning.
-6. Generate Excel filenames and file paths based on the year.
-7. Save the DataFrames as Excel files with charts.
-"""
 
 
 def main(region: str) -> None:

@@ -1,15 +1,3 @@
-import os
-import pandas as pd
-import geopandas as gpd
-import numpy as np
-import sqlite3
-
-from pathlib import Path
-from tqdm import tqdm
-from typing import Optional
-
-from ep.config import SQL_DIR, PARQUET_DIR, BG_DIR
-
 """
 This script processes SQLite database tables and converts them into Parquet files.
 
@@ -27,6 +15,18 @@ It performs the following steps:
 
 The script is designed to work with a specific database structure and assumes the presence of certain columns in the tables.
 """
+
+import os
+import pandas as pd
+import geopandas as gpd
+import numpy as np
+import sqlite3
+
+from pathlib import Path
+from tqdm import tqdm
+from typing import Optional
+
+from ep.config import SQL_DIR, PARQUET_DIR, BG_DIR
 
 
 def db_tables(cursor: sqlite3.Cursor) -> list[str]:

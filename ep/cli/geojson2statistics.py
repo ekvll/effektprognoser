@@ -1,19 +1,8 @@
-import geopandas as gpd
-
-from typing import Optional
-
-from tqdm import tqdm
-from pathlib import Path
-
-from ep.config import GEOJSON_TMP_DIR, GEOJSON_DIR, raps_categories
-from ep.cli.parquet2geojson import save_geojson
-
-
 """
 This script processes GeoJSON files and compares them to a reference GeoDataFrame.
 It merges the data for each category and year, and saves the results as GeoJSON files.
 
-THe following processes are performed:
+The following processes are performed:
 1. Load GeoJSON files for a specific region.
 2. For each category, filter the filenames and load the corresponding GeoDataFrame.
 3. Merge the GeoDataFrame with a reference GeoDataFrame based on 'rid'.
@@ -23,6 +12,16 @@ THe following processes are performed:
 
 The script is designed to work with the output of the parquet2geojson.py script.
 """
+
+import geopandas as gpd
+
+from typing import Optional
+
+from tqdm import tqdm
+from pathlib import Path
+
+from ep.config import GEOJSON_TMP_DIR, GEOJSON_DIR, raps_categories
+from ep.cli.parquet2geojson import save_geojson
 
 
 def geojson_tmp_filenames(region: str, tmp: bool = False) -> list[str]:

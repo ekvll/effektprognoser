@@ -1,3 +1,11 @@
+"""
+This script did not really do what it was supposed to do.
+
+It was intended to do what parquet2all_table.py does, but it was not implemented correctly.
+
+This script will eventually be removed.
+"""
+
 import os
 import pandas as pd
 import geopandas as gpd

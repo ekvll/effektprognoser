@@ -1,3 +1,7 @@
+"""
+This script works well with region 12 due to its large dataset, compared to the other regions. Performance vise this script might be slower than ep.cli.sql2parquet, but it is more memory efficient as it processes the data in chunks.
+"""
+
 import pandas as pd
 import geopandas as gpd
 

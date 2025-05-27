@@ -1,3 +1,9 @@
+"""
+This script processes parquet files and converts them into GeoJSON format.
+It groups the parquet files into categories based on their filenames,
+merges the data for each category and year, and saves the results as GeoJSON files.
+"""
+
 import os
 import numpy as np
 import geopandas as gpd
@@ -11,12 +17,6 @@ from ep.config import (
     GEOJSON_DIR,
 )
 from ep.cli.sql2parquet import parquet_filenames, load_parquet
-
-"""
-This script processes parquet files and converts them into GeoJSON format.
-It groups the parquet files into categories based on their filenames,
-merges the data for each category and year, and saves the results as GeoJSON files.
-"""
 
 
 def extract_raps_from_filename(filename: str) -> str:
