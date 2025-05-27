@@ -443,12 +443,13 @@ def load_grid(filename: str = "RSS_Skane_squares.gpkg") -> gpd.GeoDataFrame:
     gdf = gdf.dissolve(by="rid")
     gdf = gdf.reset_index()
 
+    tqdm.write(f"Loaded GeoDataFrame grid ({filename}).")
     return gdf
 
 
-def load_kommun() -> gpd.GeoDataFrame:
+def load_kommun(filename: str = "RSS_Skane_kommuner.gpkg") -> gpd.GeoDataFrame:
     """Load the kommun data."""
-    path = os.path.join(BG_DIR, "RSS_Skane_kommuner.gpkg")
+    path = os.path.join(BG_DIR, filename)
 
     # cols = ["KOMMUNNAMN", "KOMMUNKOD", "LANSKOD", "LANSNAMN", "geometry"]
     cols = ["KOMMUNNAMN", "KOMMUNKOD", "geometry"]
@@ -469,12 +470,13 @@ def load_kommun() -> gpd.GeoDataFrame:
     gdf = gdf.dissolve(by="kn")
     gdf = gdf.reset_index()
 
+    tqdm.write(f"Loaded GeoDataFrame kommuner ({filename}).")
     return gdf
 
 
-def load_natomrade() -> gpd.GeoDataFrame:
+def load_natomrade(filename: str = "natomraden.gpkg") -> gpd.GeoDataFrame:
     """Load the natomrade data."""
-    path = os.path.join(BG_DIR, "natomraden.gpkg")
+    path = os.path.join(BG_DIR, filename)
 
     cols = ["company", "geometry"]
     crs = "EPSG:3006"
@@ -486,6 +488,7 @@ def load_natomrade() -> gpd.GeoDataFrame:
     gdf = gdf.dissolve(by="natbolag")
     gdf = gdf.reset_index()
 
+    tqdm.write(f"Loaded GeoDataFrame natomrade ({filename}).")
     return gdf
 
 
@@ -694,6 +697,7 @@ if __name__ == "__main__":
     tqdm.write("Starting sql2parquet script")
     from ep.config import regions
 
+    # Run from region 12 and onwards
     # regions = ["12"]
-    for region in regions:
+    for region in regions[5:]:
         main(region)

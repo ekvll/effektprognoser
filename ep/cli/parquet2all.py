@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import geopandas as gpd
 from tqdm import tqdm
 from ep.config import regions, raps_categories, default_years
 from ep.cli.parquet2kommun import parquet_filenames, load_parquet
@@ -29,6 +30,27 @@ def merge_files_with_raps():
     return result
 
 
+def drop_duplicates(df):
+    return df.drop_duplicates(subset="rid", keep="first")  # Or 'last' or False
+
+
+def drop_duplicates_keep_highest(
+    df: pd.DataFrame | gpd.GeoDataFrame, id_col: str, value_col: str
+) -> pd.DataFrame | gpd.GeoDataFrame:
+    """
+    Drop duplicates in a DataFrame or GeoDataFrame, keeping the row with the highest value in a specified column.
+
+    Args:
+        df (pd.DataFrame | gpd.GeoDataFrame): The DataFrame or GeoDataFrame to process.
+        id_col (str): The column name to group by (e.g., 'rid').
+        value_col (str): The column name to determine the highest value (e.g., 'eb').
+    Returns:
+        pd.DataFrame | gpd.GeoDataFrame: A DataFrame or GeoDataFrame with duplicates dropped, keeping the row with the highest value in the specified column.
+    """
+    df_max_eb = df.loc[df.groupby(id_col)[value_col].idxmax()].reset_index(drop=True)
+    return df_max_eb
+
+
 def collect_files(merged_files):
     for category, subpaths in merged_files.items():
         for year in default_years:
@@ -49,9 +71,7 @@ def main():
 
     for category, year, df in collect_files(merged_files):
         tqdm.write(f"{category} {year}")
-        # print(f"Year: {year}")
-        # print(df.shape)
-        # print(df.columns)
+        df = drop_duplicates(df)
         as_parquet(df, region="alla", table=f"{year}_{category}")
 
 

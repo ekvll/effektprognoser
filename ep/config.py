@@ -2,6 +2,11 @@ import os
 from pathlib import Path
 from tqdm import tqdm
 
+"""
+Manually mount the Windows drive in WSL2
+sudo mount -t drvfs D: /mnt/d/
+"""
+
 # Absolute path to SQL directory (adjust as needed)
 SQL_DIR = Path("/mnt/d/effektprognoser/sqlite")
 
