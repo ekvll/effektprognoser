@@ -17,16 +17,16 @@ The script is designed to work with a specific database structure and assumes th
 """
 
 import os
-import pandas as pd
-import geopandas as gpd
-import numpy as np
 import sqlite3
-
 from pathlib import Path
-from tqdm import tqdm
 from typing import Optional
 
-from ep.config import SQL_DIR, PARQUET_DIR, BG_DIR
+import geopandas as gpd
+import numpy as np
+import pandas as pd
+from tqdm import tqdm
+
+from ep.config import BG_DIR, PARQUET_DIR, SQL_DIR
 
 
 def db_tables(cursor: sqlite3.Cursor) -> list[str]:
@@ -168,6 +168,7 @@ def validate_geometries(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
 
 
 def get_largest_area_geometry(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    """write docstring"""
     gdf = gdf.assign(area=gdf.geometry.area / 10**6).reset_index(drop=True)
 
     idx_max_area = gdf.area.idxmax()

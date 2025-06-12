@@ -13,15 +13,14 @@ The following processes are performed:
 The script is designed to work with the output of the parquet2geojson.py script.
 """
 
-import geopandas as gpd
-
+from pathlib import Path
 from typing import Optional
 
+import geopandas as gpd
 from tqdm import tqdm
-from pathlib import Path
 
-from ep.config import GEOJSON_TMP_DIR, GEOJSON_DIR, raps_categories
 from ep.cli.parquet2geojson import save_geojson
+from ep.config import GEOJSON_DIR, GEOJSON_TMP_DIR, raps_categories
 
 
 def geojson_tmp_filenames(region: str, tmp: bool = False) -> list[str]:
@@ -79,7 +78,14 @@ def merge_keep_unmutuals(
     )
 
     merged = merged.rename(
-        columns={"eb_gdf": "eb", "ea_gdf": "ea", "geometry_gdf": "geometry"}
+        columns={
+            "eb_gdf": "eb",
+            "ea_gdf": "ea",
+            "geometry_gdf": "geometry",
+            "kn_gdf": "kn",
+            "kk_gdf": "kk",
+            "natbolag_gdf": "natbolag",
+        }
     )
 
     return merged
@@ -96,8 +102,10 @@ def main(region):
             tqdm.write(f"No filenames for category {category}. Skipping...")
             continue
 
-        for filename in filenames_filtered:
-            tqdm.write(f"Processing file: {filename}")
+        for filename in tqdm(
+            filenames_filtered, desc="Filenames", position=1, leave=False
+        ):
+            # tqdm.write(f"Processing file: {filename}")
             gdf = load_geojson(filename, region, tmp=True)
 
             year = filename.split("_")[0]
@@ -118,5 +126,5 @@ if __name__ == "__main__":
     from ep.config import regions_alla
 
     # regions = ["10"]
-    for region in regions_alla:
+    for region in tqdm(regions_alla, desc="Regions", position=0, leave=False):
         main(region)

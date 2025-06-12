@@ -13,8 +13,9 @@ Usage:
 """
 
 import logging
-from tqdm import tqdm
 from pathlib import Path
+
+from tqdm import tqdm
 
 # Ensure the log directory exists
 log_dir = Path("logs")

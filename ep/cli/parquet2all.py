@@ -7,15 +7,18 @@ This script will eventually be removed.
 """
 
 import os
-import pandas as pd
+
 import geopandas as gpd
+import pandas as pd
 from tqdm import tqdm
-from ep.config import regions, raps_categories, default_years
-from ep.cli.parquet2kommun import parquet_filenames, load_parquet
+
+from ep.cli.parquet2kommun import load_parquet, parquet_filenames
 from ep.cli.sql2parquet import as_parquet
+from ep.config import default_years, raps_categories, regions
 
 
-def print_merged_files(merged_files):
+def print_merged_files(merged_files: dict) -> None:
+    """docstring"""
     for category, files in merged_files.items():
         print(f"\n{category}:")
         for file in files:

@@ -5,18 +5,13 @@ merges the data for each category and year, and saves the results as GeoJSON fil
 """
 
 import os
-import numpy as np
-import geopandas as gpd
 
+import geopandas as gpd
+import numpy as np
 from tqdm import tqdm
 
-from ep.config import (
-    GEOJSON_TMP_DIR,
-    raps_categories,
-    default_years,
-    GEOJSON_DIR,
-)
-from ep.cli.sql2parquet import parquet_filenames, load_parquet
+from ep.cli.sql2parquet import load_parquet, parquet_filenames
+from ep.config import GEOJSON_DIR, GEOJSON_TMP_DIR, default_years, raps_categories
 
 
 def extract_raps_from_filename(filename: str) -> str:
@@ -95,7 +90,15 @@ def merge_filenames_per_year(region, filenames: list[str], year) -> dict:
                 raise ValueError
 
             if rid not in result:
+                kk = gdf_rid["kk"].values[0]
+                kk = "0" + str(kk) if not str(kk).startswith("0") else str(kk)
+                natbolag = gdf_rid["natbolag"].values[0]
+                natbolag = natbolag.split("\\n")[0]
+
                 result[rid] = {
+                    "kn": gdf_rid["kn"].values[0],
+                    "kk": kk,
+                    "natbolag": natbolag,
                     "lp": np.zeros(8784 if year == "2040" else 8760),
                     "geometry": gdf_rid.geometry,
                 }
@@ -110,6 +113,9 @@ def restructure_merged_filenames(merged_filenames: dict) -> gpd.GeoDataFrame:
         records.append(
             {
                 "rid": rid,
+                "kn": loadprofile["kn"],
+                "kk": loadprofile["kk"],
+                "natbolag": loadprofile["natbolag"],
                 "lp": loadprofile["lp"],
                 "eb": loadprofile["lp"].max(),
                 "ea": loadprofile["lp"].sum(),
@@ -141,9 +147,11 @@ def main(region: str) -> None:
     tqdm.write(f"Processing region: {region}")
     filenames = parquet_filenames(region)
     raps_grouped = group_raps_into_categories_from_filenames(filenames)
-    for category, year, filenames in process_raps_grouped(raps_grouped):
+    for category, year, filenames in tqdm(
+        process_raps_grouped(raps_grouped), desc="Category", position=1, leave=False
+    ):
         # tqdm.write(f"Category: {category}, Year: {year}, Filenames: {filenames}")
-        tqdm.write(f"Category: {category}, Year: {year}")
+        # tqdm.write(f"Category: {category}, Year: {year}")
 
         merged_filenames = merge_filenames_per_year(region, filenames, year)
         gdf = restructure_merged_filenames(merged_filenames)
@@ -155,5 +163,5 @@ if __name__ == "__main__":
 
     from ep.config import regions_alla
 
-    for region in regions_alla:
+    for region in tqdm(regions_alla, desc="Regions", position=0, leave=False):
         main(region)
