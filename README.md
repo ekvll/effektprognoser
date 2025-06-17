@@ -37,9 +37,7 @@ pip install -e .
 
 ### Usage
 
-#### Command Line Interface (CLI)
-
-##### Run configuration
+#### Run configuration
 
 First off, run the configuration script:
 
@@ -51,7 +49,7 @@ which tells you to define the path to where the SQLite tables are kept.
 
 The configuration is only needed to be ran once, as long as SQLite tables are not moved and no sub-directories are deleted or moved. In such case you should rerun the configuration.
 
-##### Execute processing pipelines
+#### Execute processing pipelines
 
 To run the whole pipeline, which begins with processing SQLite tables, and in the end outputs various products, type:
 
@@ -71,7 +69,7 @@ To just process all Parquet files and output various products, type:
 ./scripts/parquet2products.sh
 ```
 
-##### List all processing steps
+#### List all processing steps
 
 To list all available CLI commands:
 
@@ -94,7 +92,7 @@ sql2parquet
 sql2parquet_chunk
 ```
 
-##### Run a single processing step
+#### Run a single processing step
 
 First, activate the Python virtual environment:
 
@@ -108,7 +106,7 @@ Thereafter, to run `sql2parquet`:
 python -m ep.cli.sql2parquet
 ```
 
-##### Run webmap in development mode
+#### Run webmap in development mode
 
 ```bash
 live-server
