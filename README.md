@@ -21,6 +21,20 @@ cd effektprognoser
 
 #### Install the repository locally
 
+First, create a virtual environment:
+
+```bash
+python3 -m venv .venv
+#or
+python -m venv .venv
+```
+
+and activate the environment:
+
+```bash
+source .venv/bin/activate
+```
+
 To install locally in normal mode:
 
 ```bash
@@ -104,6 +118,14 @@ Thereafter, to run `sql2parquet`:
 
 ```bash
 python -m ep.cli.sql2parquet
+```
+
+#### Tests
+
+To run implemented Python tests, simply
+
+```bash
+pytest
 ```
 
 #### Run webmap in development mode
