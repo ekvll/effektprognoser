@@ -47,7 +47,9 @@ First off, run the configuration script:
 ./scripts/config.sh
 ```
 
-which tells you to define the path to where the SQLite tables kept.
+which tells you to define the path to where the SQLite tables are kept.
+
+The configuration is only needed to be ran once, as long as SQLite tables are not moved and no sub-directories are deleted or moved. In such case you should rerun the configuration.
 
 ##### Execute processing pipelines
 
@@ -104,4 +106,12 @@ Thereafter, to run `sql2parquet`:
 
 ```bash
 python -m ep.cli.sql2parquet
+```
+
+##### Run webmap in development mode
+
+```bash
+live-server
+# or
+live-server index.html
 ```
