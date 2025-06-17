@@ -1,0 +1,130 @@
+#map {
+  height: 90vh;
+  width: 100%;
+  background-color: #eeead7;
+  /* background-size: cover; */
+  /* background-position: center; */
+}
+
+#controls {
+  position: absolute;
+  top: 11px;
+  left: 10px;
+  background: white;
+  border-radius: 5px; /* Rounded corners */
+  padding-left: 8px;
+  padding-right: 0px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.5); /* Shadow effect */
+  z-index: 1000; /* Higher value to ensure it appears on top */
+}
+
+#controls label {
+  margin-bottom: 10px; /* Space between labels */
+  display: block; /* Makes each label take up the full width */
+  font-family: Arial, sans-serif; /* Change to desired font family */
+  font-size: 12px; /* Set font size */
+  font-weight: bold; /* Set font weight */
+  font-style: normal; /* Set font style to normal or italic */
+  color: #333;
+}
+
+/* Aligns radio buttons and their labels inline */
+#controls input[type="radio"],
+#controls input[type="checkbox"] {
+  display: inline-block; /* Places them inline */
+  margin-right: px; /* Space between the radio button and label */
+}
+
+#controls input[type="radio"] + label,
+#controls input[type="checkbox"] + label {
+  display: inline; /* Keeps the label inline */
+  margin-right: 15px; /* Space between each radio button's label */
+}
+
+/* Optional: Style the text next to radio buttons specifically */
+#controls input[type="radio"] + label {
+  font-family: Arial, sans-serif; /* Use the same or different font */
+  font-size: 12px; /* Set font size */
+  font-weight: normal; /* Set font weight */
+}
+
+/* Optionally, style the checkbox labels similarly */
+#controls input[type="checkbox"] + label {
+  font-family: Arial, sans-serif; /* Use the same or different font */
+  font-size: 12px; /* Set font size */
+  font-weight: normal; /* Set font weight */
+}
+
+label {
+  margin-right: 10px; /* Space between label and radio buttons */
+}
+
+/* Custom styles for tooltips with 'custom-tooltip' class */
+.custom-tooltip {
+  background-color: rgba(
+    255,
+    255,
+    255,
+    0.5
+  ); /* Use 'transparent' for a transparent background */
+  border: none;
+  padding: 0;
+  color: rgb(44, 44, 44);
+  font-weight: bold;
+  font-size: 12px;
+  /* Apply the box shadow for a soft white shadow effect */
+  box-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5); /* Use a more visible white shadow */
+}
+
+.custom-tooltip:before {
+  display: none; /* Hide the default tooltip arrow */
+}
+
+.info {
+  background: rgb(255, 255, 255);
+  padding: 8px;
+  border-radius: 5px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.65);
+  font-size: 12px;
+}
+
+.legend {
+  background: white;
+  position: bottomleft;
+  top: 7px;
+  left: -8px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  font-size: 12px;
+  line-height: 1.5;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+}
+
+.legend h4 {
+  margin: 0 0 5px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #333;
+}
+
+.legend i {
+  border-radius: 3px; /* Rounded corners for color squares */
+}
+
+.legend div {
+  margin-bottom: 2px;
+}
+
+.leaflet-control-attribution {
+  background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent black background */
+  color: rgb(0, 0, 0); /* White text */
+  font-size: 12px; /* Adjust font size */
+  padding: 5px 10px; /* Add padding */
+  border-radius: 5px; /* Rounded corners */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Subtle shadow for depth */
+  bottom: 10px;
+  right: 10px;
+}

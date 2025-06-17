@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Leaflet AJAX Example</title>
+
+    <link rel="stylesheet" href="assets/css/leaflet.css" />
+    <link rel="stylesheet" href="assets/css/styles.css" />
+
+    <script src="assets/js/leaflet.js"></script>
+    <script src="assets/js/leaflet.ajax.min.js"></script>
+    <script src="assets/js/map.js" type="module" defer></script>
+  </head>
+  <body>
+    <!-- Invisible SVG container for reusable patterns -->
+    <svg width="0" height="0" style="position: absolute">
+      <defs></defs>
+    </svg>
+
+    <div id="map"></div>
+    <div id="controls">
+      <!-- Prognos Section -->
+      <label>Prognos:</label>
+      <p style="margin-top: -12px"></p>
+
+      <input
+        type="radio"
+        name="prognos"
+        id="effektbehov"
+        value="effektbehov"
+        checked
+      />
+      <label for="effektbehov">Effektbehov (MW)</label><br />
+
+      <input type="radio" name="prognos" id="ebd" value="ebd" />
+      <label for="ebd">Tillkommande effektbehov (MW)</label><br />
+
+      <input type="radio" name="prognos" id="ebp" value="ebp" />
+      <label for="ebp">Tillkommande effektbehov (%)</label><br />
+
+      <input type="radio" name="prognos" id="ead" value="ead" />
+      <label for="elanvandning">Tillkommande elanvändning (MWh)</label><br />
+
+      <input type="radio" name="prognos" id="eap" value="eap" />
+      <label for="eap">Tillkommande elanvändning (%)</label>
+
+      <p style="margin-bottom: -5px"></p>
+
+      <!-- Year Section -->
+      <label>År:</label>
+      <p style="margin-top: -12px"></p>
+
+      <input type="radio" name="year" id="year2027" value="2027" />
+      <label for="year2027">2027</label><br />
+
+      <input type="radio" name="year" id="year2030" value="2030" checked />
+      <label for="year2030">2030</label><br />
+
+      <input type="radio" name="year" id="year2040" value="2040" />
+      <label for="year2040">2040</label>
+
+      <p style="margin-bottom: -5px"></p>
+
+      <!-- Region Section -->
+      <label>Län:</label>
+      <p style="margin-top: -12px"></p>
+
+      <input type="radio" name="region" id="region1" value="alla" checked />
+      <label for="region1">Alla</label><br />
+
+      <input type="radio" name="region" id="region2" value="06" />
+      <label for="region2">Jönköpings län</label><br />
+
+      <input type="radio" name="region" id="region3" value="07" />
+      <label for="region3">Kronobergs län</label><br />
+
+      <input type="radio" name="region" id="region4" value="08" />
+      <label for="region4">Kalmar län</label><br />
+
+      <input type="radio" name="region" id="region5" value="10" />
+      <label for="region5">Blekinge</label><br />
+
+      <input type="radio" name="region" id="region6" value="12" />
+      <label for="region6">Skåne</label><br />
+
+      <input type="radio" name="region" id="region7" value="13" />
+      <label for="region7">Halland</label>
+
+      <p style="margin-bottom: -5px"></p>
+
+      <!-- Category Section -->
+      <label>Kategori:</label>
+      <p style="margin-top: -12px"></p>
+
+      <input type="radio" name="raps" id="total" value="total" checked />
+      <label for="total">Total</label><br />
+
+      <input type="radio" name="raps" id="bostader" value="bostader" />
+      <label for="bostader">Bostäder</label><br />
+
+      <input type="radio" name="raps" id="industri" value="industri_och_bygg" />
+      <label for="industri">Industri och bygg</label><br />
+
+      <input
+        type="radio"
+        name="raps"
+        id="offentlig"
+        value="offentlig_och_privat_sektor"
+      />
+      <label for="offentlig">Offentlig och privat tjänstesektor</label><br />
+
+      <input type="radio" name="raps" id="transport" value="transport" />
+      <label for="transport">Transport</label>
+
+      <p style="margin-bottom: -5px"></p>
+
+      <!-- Selectable Layers Section -->
+      <label>Valbara lager:</label>
+      <p style="margin-top: -12px"></p>
+
+      <input
+        type="checkbox"
+        name="valbara"
+        id="kommungranser"
+        value="kommungranser"
+      />
+      <label for="kommungranser">Kommungränser</label><br />
+
+      <input type="checkbox" name="valbara" id="natagare" value="natagare" />
+      <label for="natagare">Nätområden</label>
+    </div>
+  </body>
+</html>
