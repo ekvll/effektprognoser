@@ -21,6 +21,14 @@ cd effektprognoser
 
 #### Install the repository locally
 
+To install the whole repository in one go:
+
+```bash
+./scripts/install.sh
+```
+
+Or if you prefer a step-by-step approach:
+
 First, create a virtual environment:
 
 ```bash
@@ -47,21 +55,19 @@ Or, to install locally in editable/development mode:
 pip install -e .
 ```
 
----
-
-### Usage
-
-#### Run configuration
-
-First off, run the configuration script:
+Lastly, run the configuration script:
 
 ```bash
 ./scripts/config.sh
 ```
 
-which tells you to define the path to where the SQLite tables are kept.
+which tells you to define or accept the creation of various data paths.
 
-The configuration is only needed to be ran once, as long as SQLite tables are not moved and no sub-directories are deleted or moved. In such case you should rerun the configuration.
+If you would need to re-define the path where SQLite data are kept you can do so manually in `ep/config.py`.
+
+---
+
+### Usage
 
 #### Execute processing pipelines
 
