@@ -1,5 +1,7 @@
 import os
+import sys
 from pathlib import Path
+
 from tqdm import tqdm
 
 """
@@ -8,7 +10,32 @@ sudo mount -t drvfs D: /mnt/d/
 """
 
 # Absolute path to SQL directory (adjust as needed)
-SQL_DIR = Path("/mnt/d/effektprognoser/sqlite")
+# SQL_DIR = Path("/mnt/d/effektprognoser/sqlite")
+SQL_DIR = Path("")
+
+
+def sql_path_exists():
+    global SQL_DIR
+
+    if not SQL_DIR or str(SQL_DIR) == ".":  # an empty Path("") equates to str(".")
+        sql_path = input("Please enter the path to your SQL directory: ").strip()
+        if not sql_path:
+            print("No path specified. Exiting.")
+            sys.exit(1)
+        # Update the config file itself
+        with open(__file__, "r") as f:
+            lines = f.readlines()
+        with open(__file__, "w") as f:
+            for line in lines:
+                if line.strip().startswith("SQL_DIR"):
+                    f.write(f'SQL_DIR = Path(r"{sql_path}")\n')
+                else:
+                    f.write(line)
+        print(
+            f"Config file updated with SQL_DIR = {sql_path}. Please rerun your script."
+        )
+        sys.exit(0)
+
 
 # Ensure SQL_DIR exists
 # if not SQL_DIR.exists():
@@ -144,8 +171,10 @@ raps_categories = {
     "transport": ["PB", "LL", "TT DEP", "TT DEST", "TT RESTSTOP"],
     "jordbruk_skogsbruk": ["RAPS 1 3"],
 }
+
 if __name__ == "__main__":
+    sql_path_exists()
     for path in paths:
-        tqdm.write(path)
+        tqdm.write(str(path))
     validate_paths(paths)
     create_region_directories(paths_regions, regions)

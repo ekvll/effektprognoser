@@ -696,8 +696,10 @@ def main(region):
 
 if __name__ == "__main__":
     tqdm.write("Starting sql2parquet script")
-    from ep.config import regions
+    import ep
+    from ep.config import regions, sql_path_exists
 
+    sql_path_exists()
     # Run from region 12 and onwards
     # regions = ["12"]
     for region in regions:

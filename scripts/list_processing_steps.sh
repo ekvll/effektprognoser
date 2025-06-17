@@ -21,9 +21,7 @@ Example:
 		bar
 		baz
 '
-
-echo "Available CLI commands:"
-path=../ep/cli/
+path=./ep/cli/
 for file in $path*; do
 	[ -f "$file" ] && basename="${file##*/}" && echo "${basename%%.*}"
 done
