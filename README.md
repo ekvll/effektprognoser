@@ -39,6 +39,16 @@ pip install -e .
 
 #### Command Line Interface (CLI)
 
+##### Run configuration
+
+First off, run the configuration script:
+
+```bash
+./scripts/config.sh
+```
+
+which tells you to define the path to where the SQLite tables kept.
+
 ##### Execute processing pipelines
 
 To run the whole pipeline, which begins with processing SQLite tables, and in the end outputs various products, type:
