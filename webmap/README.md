@@ -1,1 +1,0 @@
-## Effektprognoser.se webmap

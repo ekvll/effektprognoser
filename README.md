@@ -1,83 +1,78 @@
-## Effektprognoser
+## Effektprognoser.se
 
-Repository is under development.
+This repository is under development.
 
-Website: [Effektprognoser.se](https://effektprognoser.se/)
+---
 
-### Clone the repository
+### Website
+
+Visit [Effektprognoser.se](https://effektprognoser.se/).
+
+---
+
+### Installation
+
+#### Clone the repository
 
 ```bash
 git clone https://github.com/ekvll/effektprognoser.git
 cd effektprognoser
 ```
 
-### Installation
+#### Install the repository locally
 
-After cloning the repository, you can install the project using either `uv` or `pip`.
-
-#### Using uv
-
-To install the project using [uv](https://github.com/astral-sh/uv):
+To install locally in normal mode:
 
 ```bash
-# Create and activate a virtual environment
-uv venv .venv
+pip install .
+```
+
+Or, to install locally in editable/development mode:
+
+```bash
+pip install -e .
+```
+
+---
+
+### Usage
+
+#### Command Line Interface (CLI)
+
+##### List CLI commands
+
+To list all available CLI commands:
+
+```bash
+./scripts/list_cli_commands.sh
+```
+
+which will output:
+
+```bash
+Available CLI commands:
+__init__
+geojson2statistics
+parquet2all
+parquet2all_table
+parquet2geojson
+parquet2kommun
+parquet2kommun_maxeffekt
+parquet2region
+sql2parquet
+sql2parquet_chunk
+```
+
+##### Run a CLI command
+
+First, activate the Python virtual environment:
+
+```bash
 source .venv/bin/activate
 ```
 
-Then, either:
+Thereafter, to run `sql2parquet`:
 
 ```bash
-# Install dependencies defined in pyproject.toml
-uv pip install .
-```
-
-or:
-
-```bash
-# Install dependencies defined in requirements.txt
-uv pip install -r requirements.txt
-```
-
-or in editable mode:
-
-```bash
-# Install dependencies defined in pyproject.toml
-uv pip install -e .
-```
-
-#### Using pip
-
-...
-
-
-### Command Line Interface (CLI)
-
-To run the CLI, use the following command:
-
-```bash
-source .venv/bin/activate
 python -m ep.cli.sql2parquet
 ```
-
-### Tests
-
-To run the tests, use the following command:
-
-```bash
-pytest
-```
-
-### Coverage
-
-To check coverage, run:
-
-```bash
-pytest --cov=ep tests/
-pytest --cov=ep --cov-report=html
-vulture . --exclude=.venv
-```
-
-### License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
