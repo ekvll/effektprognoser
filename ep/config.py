@@ -11,7 +11,7 @@ sudo mount -t drvfs D: /mnt/d/
 
 # Absolute path to SQL directory (adjust as needed)
 # SQL_DIR = Path("/mnt/d/effektprognoser/sqlite")
-SQL_DIR = Path("")
+SQL_DIR = Path("/mnt/d/effektprognoser/sqlite")
 
 
 def sql_path_exists():
@@ -31,9 +31,7 @@ def sql_path_exists():
                     f.write(f'SQL_DIR = Path(r"{sql_path}")\n')
                 else:
                     f.write(line)
-        print(
-            f"Config file updated with SQL_DIR = {sql_path}. Please rerun your script."
-        )
+        print(f"Config file updated with SQL_DIR = {sql_path}.")
         sys.exit(0)
 
 
@@ -60,6 +58,9 @@ EXCEL_DIR = PROJECT_ROOT / "data" / "excel"
 # Temporary directory for GeoJSON files
 GEOJSON_TMP_DIR = GEOJSON_DIR / "_tmp"
 
+# Test data
+TEST_DIR = PROJECT_ROOT / "data" / "_test"
+
 
 def validate_paths(paths: list[Path]) -> None:
     """Raise FileNotFoundError if any path does not exist."""
@@ -82,6 +83,7 @@ paths = [
     GEOJSON_DIR,
     GEOJSON_TMP_DIR,
     EXCEL_DIR,
+    TEST_DIR,
 ]
 validate_paths(paths)
 

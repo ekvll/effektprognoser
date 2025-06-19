@@ -132,6 +132,9 @@ function styleFunctionDifference(boundaries, colors, prognos, base) {
     } else if (value < 0 && selectedValues.raps === "transport") {
       const positiveValue = 0.1;
       color = getColor(positiveValue, boundaries, colors);
+    } else if (value > 10e6 - 1 && selectedValues.raps === "transport") {
+      const baseValue = feature.properties[base];
+      color = getColor(baseValue, boundaries, colors);
       // 10e6 is a dummy value for squares with 'ny bebyggelse' or 'ny laddinfra'
     } else if (value > 10e6 - 1) {
       const baseValue = feature.properties[base];

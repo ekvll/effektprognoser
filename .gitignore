@@ -1,0 +1,22 @@
+# Virtual environment and .git
+.venv/
+.git/
+
+# Data
+data/excel/
+data/geojson/
+data/parquet/
+data/_test/
+
+# File types
+*.sqlite
+
+# Logs
+logs/
+
+# Other
+*egg-info/
+*.pyc
+__pycache__/
+*.pytest_cache
+

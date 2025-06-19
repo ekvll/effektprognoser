@@ -650,7 +650,55 @@ def verify_gdf(gdf: gpd.GeoDataFrame, crs: str) -> gpd.GeoDataFrame:
     return gdf
 
 
+def pipeline(conn, cursor):
+    grid = load_grid()
+    kommuner = load_kommun()
+    natomrade = load_natomrade()
+
+    tables = db_tables(cursor)
+    years = db_years(tables)
+
+    for year in tqdm(years, desc="Years", position=0, leave=False):
+        tables_filtered = filter_tables(tables, year)
+
+        for table in tqdm(tables_filtered, desc="Tables", position=1, leave=False):
+            df = load_table_chunks(conn, cursor, table)
+            df = drop_nan_row(df, "rid")
+            df = set_dtypes(df)
+            df = sort_df(df, ["rid", "Tidpunkt"], [True, True])
+
+            if not qc(df, year):
+                tqdm.write(f"Quality check failed for table {table}. Skipping.")
+                continue
+
+            df = drop_column(df, "Tidpunkt")
+            df = calculate_energy_statistics(df)
+            df = add_geometry(df, grid)
+
+            gdf = to_gdf(df, crs="EPSG:3006")
+
+            gdf = polygon_intersection(gdf, kommuner)
+            gdf = largest_area(gdf)
+            gdf = polygon_intersection(gdf, natomrade)
+            gdf = largest_area(gdf)
+
+            yield gdf, table
+
+
 def main(region):
+    tqdm.write(f"Processing region: {region}")
+
+    path = db_path(region)
+    conn, cursor = db_connect(path)
+    for gdf, table in pipeline(conn, cursor):
+        #       as_parquet(gdf, region, table)
+        pass
+
+    cursor.close()
+    conn.close()
+
+
+def __main(region):
     """Main function to process SQLite database tables."""
 
     tqdm.write(f"Processing region: {region}")

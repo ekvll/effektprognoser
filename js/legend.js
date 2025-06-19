@@ -103,27 +103,41 @@ export function updateLegend2() {
     }
 
     // Add special patterned squares for "Ny laddinfra" or "Ny bebyggelse"
-    if (selectedValues.prognos !== "effektbehov") {
-      if (belowZero) {
-        const label =
-          selectedValues.raps === "transport"
-            ? "Ny laddinfra"
-            : "Ny bebyggelse";
-        div.innerHTML += legendRow(
-          svgCode,
-          label,
-          label === "Ny laddinfra" ? "78px" : "95px",
-        );
-      } else {
-        const label =
-          selectedValues.raps === "transport"
-            ? "Ny laddinfra"
-            : "Ny bebyggelse";
-        div.innerHTML += legendRow(
-          svgCode,
-          label,
-          label === "Ny laddinfra" ? "78px" : "95px",
-        );
+    if (
+      !["industri_och_bygg", "offentlig_och_privat_sektor"].includes(
+        selectedValues.raps,
+      )
+    ) {
+      if (selectedValues.prognos !== "effektbehov") {
+        if (belowZero) {
+          const label =
+            selectedValues.raps === "transport"
+              ? "Ny laddinfra"
+              : "Ny bebyggelse";
+          div.innerHTML += legendRow(
+            svgCode,
+            label,
+            label === "Ny laddinfra" ? "78px" : "95px",
+          );
+        } else {
+          const label =
+            selectedValues.raps === "transport"
+              ? "Ny laddinfra"
+              : "Ny bebyggelse";
+          if (selectedValues.raps !== "transport") {
+            div.innerHTML += legendRow(
+              svgCode,
+              label,
+              label === "Ny laddinfra" ? "78px" : "95px",
+            );
+          } else if (["eap", "ebp"].includes(selectedValues.prognos)) {
+            div.innerHTML += legendRow(
+              svgCode,
+              label,
+              label === "Ny laddinfra" ? "78px" : "95px",
+            );
+          }
+        }
       }
     }
 

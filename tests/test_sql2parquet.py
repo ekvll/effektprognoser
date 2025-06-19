@@ -1,54 +1,47 @@
 import os
-import pytest
-import pandas as pd
-import geopandas as gpd
-import numpy as np
 import sqlite3
 import tempfile
-
 from unittest import mock
-from shapely import Point, Polygon
 from unittest.mock import patch
 
-from ep.config import SQL_DIR, PARQUET_DIR
-from ep.cli.sql2parquet import has_complete_days
-from ep.cli.sql2parquet import parquet_filenames, load_parquet, db_path
+import geopandas as gpd
+import numpy as np
+import pandas as pd
+import pytest
+from shapely import Point, Polygon
+
 from ep.cli.sql2parquet import (
+    add_geometry,
+    aggregate_loadprofile,
+    build_select_query,
+    calculate_energy_statistics,
+    compute_summary_stats,
+    connect_to_db,
+    db_connect,
+    db_path,
     db_tables,
     db_years,
+    drop_column,
     drop_nan_row,
+    format_df,
+    get_column_names,
+    get_cursor,
+    get_kommuner_in_region,
+    get_largest_area_geometry,
+    group_elanvandning,
+    has_complete_days,
+    largest_area,
+    load_parquet,
+    load_table_chunks,
+    parquet_filenames,
+    polygon_intersection,
     set_dtypes,
     sort_df,
-    drop_column,
-    add_geometry,
-    largest_area,
-    polygon_intersection,
     to_gdf,
-    group_elanvandning,
-    compute_summary_stats,
-    calculate_energy_statistics,
-    get_largest_area_geometry,
+    validate_connection,
     validate_geometries,
 )
-from ep.cli.sql2parquet import aggregate_loadprofile
-
-from ep.cli.sql2parquet import (
-    get_column_names,
-    build_select_query,
-    format_df,
-    load_table_chunks,
-)
-
-
-from ep.cli.sql2parquet import get_kommuner_in_region
-
-
-from ep.cli.sql2parquet import (
-    connect_to_db,
-    get_cursor,
-    validate_connection,
-    db_connect,
-)
+from ep.config import PARQUET_DIR, SQL_DIR
 
 
 def test_has_complete_days():

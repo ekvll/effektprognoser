@@ -7,7 +7,7 @@ export function loadNatagareGranser() {
   // This function loads the natagare granser layer onto the Leaflet map based on the selected values
   // It checks if the layer has already been created, and if not, it creates a new layer using the GeoJSON data
   // It styles the layer with a specific color, weight, and opacity
-  const dataPath = `../data/geojson/background/Natomraden_ll84_dissolved.geojson`;
+  const dataPath = `./data/geojson/background/Natomraden_ll84_dissolved.geojson`;
   // If the layer hasn't been created yet, load it first
   if (!currentNatagareGranser) {
     currentNatagareGranser = new L.GeoJSON.AJAX(dataPath, {
@@ -49,7 +49,7 @@ export function loadKommunGranser() {
   // This function loads the kommun granser layer onto the Leaflet map based on the selected values
   // It checks if the layer has already been created, and if not, it creates a new layer using the GeoJSON data
   // It styles the layer with a specific color, weight, and opacity
-  const dataPath = `../data/geojson/background/kommungranser_rss_skane_dissolved.geojson`;
+  const dataPath = `./data/geojson/background/kommungranser_rss_skane_dissolved.geojson`;
   // If the layer hasn't been created yet, load it first
   if (!currentKommunGranser) {
     currentKommunGranser = new L.GeoJSON.AJAX(dataPath, {

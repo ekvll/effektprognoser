@@ -29,7 +29,7 @@ export function loadDataLayer() {
   // The function logs the path to the console for debugging purposes
   // It uses the `L.GeoJSON.AJAX` to load the GeoJSON data asynchronously
   // The function is called to update the map with the new data layer based on the user's selections
-  const dataPath = `../data/geojson/${selectedValues.region}/${selectedValues.year}_${selectedValues.raps}.geojson`;
+  const dataPath = `./data/geojson/${selectedValues.region}/${selectedValues.year}_${selectedValues.raps}.geojson`;
   console.log(dataPath);
   let rapsValue;
 
@@ -76,7 +76,7 @@ export function loadDataLayer() {
 }
 
 export function loadRoadsBoundary() {
-  const dataPath = `../data/geojson/background/vagar_2.geojson`;
+  const dataPath = `./data/geojson/background/vagar_2.geojson`;
   const cacheKey = "roads_boundary";
 
   // If layer is cached already, add the cached layer to map
@@ -110,7 +110,7 @@ export function loadRoadsBoundary() {
 }
 
 export function loadRoads() {
-  const dataPath = `../data/geojson/background/vagar_2.geojson`;
+  const dataPath = `./data/geojson/background/vagar_2.geojson`;
 
   if (layerCache[dataPath]) {
     roadsLayer = layerCache[dataPath];
@@ -140,7 +140,7 @@ export function loadRoads() {
   }
 }
 export function loadRoadsBoundaryHiRes() {
-  const dataPath = `../data/geojson/background/vagar_3.geojson`;
+  const dataPath = `./data/geojson/background/vagar_3.geojson`;
   const cacheKey = "roads_boundary";
 
   if (layerCache[cacheKey]) {
@@ -172,7 +172,7 @@ export function loadRoadsBoundaryHiRes() {
 }
 
 export function loadRoadsHiRes() {
-  const dataPath = `../data/geojson/background/vagar_3.geojson`;
+  const dataPath = `./data/geojson/background/vagar_3.geojson`;
 
   if (layerCache[dataPath]) {
     roadsLayerHiRes = layerCache[dataPath];
@@ -267,7 +267,7 @@ export function loadDanmark() {
 
 export function loadCities() {
   // Function to load the city name labels layer
-  const dataPath = `../data/geojson/background/city_1.geojson`;
+  const dataPath = `./data/geojson/background/city_1.geojson`;
 
   if (layerCache[dataPath]) {
     // Check if the layer is already loaded, and stored in cache
@@ -314,7 +314,7 @@ export function loadCities() {
 
 export function loadCitiesHiRes() {
   // Function to load the city name labels layer
-  const dataPath = `../data/geojson/background/city_2.geojson`;
+  const dataPath = `./data/geojson/background/city_2.geojson`;
 
   if (layerCache[dataPath]) {
     // Check if the layer is already loaded, and stored in cache
