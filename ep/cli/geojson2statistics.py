@@ -13,10 +13,12 @@ The following processes are performed:
 The script is designed to work with the output of the parquet2geojson.py script.
 """
 
+import sys
 from pathlib import Path
 from typing import Optional
 
 import geopandas as gpd
+import pandas as pd
 from tqdm import tqdm
 
 from ep.cli.parquet2geojson import save_geojson
@@ -55,7 +57,6 @@ def load_geojson(
 
     if not file_path.is_file():
         raise FileNotFoundError(f"File {file_path} does not exist")
-
     gdf = gpd.read_file(file_path)
     return gdf[cols] if cols else gdf
 
@@ -85,10 +86,20 @@ def merge_keep_unmutuals(
             "kn_gdf": "kn",
             "kk_gdf": "kk",
             "natbolag_gdf": "natbolag",
+            "filename_gdf": "filename",
+            "category_gdf": "category",
         }
     )
 
     return merged
+
+
+def replace_negative_val(
+    df: pd.DataFrame | gpd.GeoDataFrame, col: str, to_val: int | float
+) -> pd.DataFrame | gpd.GeoDataFrame:
+    df[col] = df[col].astype(float)
+    df.loc[df[col] < 0, col] = to_val
+    return df
 
 
 def main(region):
@@ -105,7 +116,7 @@ def main(region):
         for filename in tqdm(
             filenames_filtered, desc="Filenames", position=1, leave=False
         ):
-            # tqdm.write(f"Processing file: {filename}")
+            # tqdm.write(filename)
             gdf = load_geojson(filename, region, tmp=True)
 
             year = filename.split("_")[0]
@@ -113,10 +124,35 @@ def main(region):
                 ref = gdf.copy(deep=True)
 
             merged = merge_keep_unmutuals(gdf, ref)
+            if category == "total":
+                for idx, row in merged.iterrows():
+                    fn = row.filename.replace("_V1.parquet", "")
+                    # tqdm.write(fn)
+                    if any(sub in fn for sub in ["Smahus", "Flerbostadshus"]):
+                        # tqdm.write(fn)
+                        merged.loc[idx, "ebp"] = 10e6
+                        merged.loc[idx, "eap"] = 10e6
+                        merged.loc[idx, "ebd"] = 10e6
+                        merged.loc[idx, "ead"] = 10e6
+                    elif any(sub in fn for sub in ["TT", "PB", "LL"]):
+                        merged.loc[idx, "ebp"] = 10e6
+                        merged.loc[idx, "eap"] = 10e6
+                        merged.loc[idx, "ebd"] = row["eb"]
 
-            merged.fillna(10e6, inplace=True)
+            else:
+                if category == "bostader":
+                    merged["ebp"] = merged["ebp"].fillna(10e6)
+                    merged["eap"] = merged["eap"].fillna(10e6)
+                    merged["ebd"] = merged["ebd"].fillna(10e6)
+                    merged["ead"] = merged["ead"].fillna(10e6)
+                if category == "transport":
+                    merged["ebp"] = merged["ebp"].fillna(10e6)
+                    merged["eap"] = merged["eap"].fillna(10e6)
+                    merged["ebd"] = merged["ebd"].fillna(merged["eb"])
+                    merged = replace_negative_val(merged, "ebd", 0.1)
 
             merged = merged.to_crs("EPSG:4326")
+
             save_geojson(merged, region, year, category, tmp=False)
 
 

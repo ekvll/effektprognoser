@@ -128,6 +128,8 @@ python -m ep.cli.sql2parquet
 
 #### Tests
 
+Tests include an end-to-end test. For this test to function you need the end-to-end data set which you can download [here](https://nppd.se/effektprognoser/Effektmodell_test.sqlite).
+
 To run implemented Python tests, simply
 
 ```bash

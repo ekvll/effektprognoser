@@ -5,6 +5,7 @@ merges the data for each category and year, and saves the results as GeoJSON fil
 """
 
 import os
+import sys
 
 import geopandas as gpd
 import numpy as np
@@ -70,7 +71,7 @@ def process_raps_grouped(raps_grouped: dict):
             yield category, year, filenames_filtered
 
 
-def merge_filenames_per_year(region, filenames: list[str], year) -> dict:
+def merge_filenames_per_year(region, filenames: list[str], year, category) -> dict:
     result = {}
 
     for filename in filenames:
@@ -100,10 +101,13 @@ def merge_filenames_per_year(region, filenames: list[str], year) -> dict:
                     "kk": kk,
                     "natbolag": natbolag,
                     "lp": np.zeros(8784 if year == "2040" else 8760),
+                    "filename": [],
+                    "category": category,
                     "geometry": gdf_rid.geometry,
                 }
 
             result[rid]["lp"] += gdf_rid.lp.to_numpy()[0]
+            result[rid]["filename"].append(filename)
     return result
 
 
@@ -113,6 +117,8 @@ def restructure_merged_filenames(merged_filenames: dict) -> gpd.GeoDataFrame:
         records.append(
             {
                 "rid": rid,
+                "filename": ";".join(loadprofile["filename"]),
+                "category": loadprofile["category"],
                 "kn": loadprofile["kn"],
                 "kk": loadprofile["kk"],
                 "natbolag": loadprofile["natbolag"],
@@ -153,8 +159,11 @@ def main(region: str) -> None:
         # tqdm.write(f"Category: {category}, Year: {year}, Filenames: {filenames}")
         # tqdm.write(f"Category: {category}, Year: {year}")
 
-        merged_filenames = merge_filenames_per_year(region, filenames, year)
+        merged_filenames = merge_filenames_per_year(region, filenames, year, category)
         gdf = restructure_merged_filenames(merged_filenames)
+        #        print(gdf["filename"])
+        # print(gdf.dtypes)
+        # sys.exit(0)
         save_geojson(gdf, region, year, category, tmp=True)
 
 
