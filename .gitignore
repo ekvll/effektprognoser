@@ -7,6 +7,7 @@ data/excel/
 data/geojson/
 data/parquet/
 data/_test/
+data/__g*
 
 # File types
 *.sqlite
