@@ -686,19 +686,6 @@ def pipeline(conn, cursor):
 
 
 def main(region):
-    tqdm.write(f"Processing region: {region}")
-
-    path = db_path(region)
-    conn, cursor = db_connect(path)
-    for gdf, table in pipeline(conn, cursor):
-        #       as_parquet(gdf, region, table)
-        pass
-
-    cursor.close()
-    conn.close()
-
-
-def __main(region):
     """Main function to process SQLite database tables."""
 
     tqdm.write(f"Processing region: {region}")

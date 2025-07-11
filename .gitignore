@@ -9,6 +9,9 @@ data/parquet/
 data/_test/
 data/__g*
 
+# Scripts
+scripts/__*
+
 # File types
 *.sqlite
 
