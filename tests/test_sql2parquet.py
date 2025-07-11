@@ -121,10 +121,20 @@ def test_load_parquet_all_columns(temp_parquet_file):
 def test_db_path_exists():
     """Test that the database path exists for specific regions. Regions specified in 'regions' shall exist."""
     regions = ["06", "07", "08", "10", "12", "13"]
+    try:
+        for region in regions:
+            path = db_path(region)
+            assert os.path.isfile(path), f"Database file {path} not found."
 
-    for region in regions:
-        path = db_path(region)
-        assert os.path.isfile(path), f"Database file {path} not found."
+    except OSError as e:
+        pytest.skip(f"External hard drive is likely not connected: {e}")
+
+
+def test_db_test_exist():
+    db_name = "Effektmodell_test.sqlite"
+    dir = "data/_test/sqlite/Effektmodell_test/"
+    path = os.path.join(dir, db_name)
+    assert os.path.isfile(path), f"Test database file {path} not found."
 
 
 def test_db_path_missing():
