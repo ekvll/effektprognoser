@@ -12,6 +12,9 @@ data/__g*
 # Scripts
 scripts/__*
 
+# Specific files
+TODO.md
+
 # File types
 *.sqlite
 
