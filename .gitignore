@@ -23,4 +23,4 @@ logs/
 *.pyc
 __pycache__/
 *.pytest_cache
-
+*/_deprecated

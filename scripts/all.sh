@@ -1,5 +1,8 @@
 !#/bin/bash
 
+# This script runs the whole pipeline, from end to end
+
+
 # Activate the Python virtual environment
 source .venv/bin/activate
 

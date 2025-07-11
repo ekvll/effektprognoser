@@ -1,103 +1,80 @@
-## Effektprognoser.se
+# Effektprognoser.se
 
-This repository is under development.
+**Effektprognoser.se** is a data processing and web visualization project for power forecasts in Sweden.  
+This repository contains scripts and tools for data ingestion, transformation, and web presentation.
 
----
-
-### Website
-
-Visit [Effektprognoser.se](https://effektprognoser.se/).
+> 🚧 **Note:** This repository is under active development.
 
 ---
 
-### Installation
+## 🌐 Website
 
-#### Clone the repository
+Explore the live website: [Effektprognoser.se](https://effektprognoser.se/)
+
+---
+
+## 🛠️ Prerequisites
+
+- Python 3.8+
+- Bash shell (for running scripts)
+- [live-server](https://www.npmjs.com/package/live-server) (for webmap development)
+- [pytest](https://docs.pytest.org/) (for testing)
+
+---
+
+## 🚀 Installation
+
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/ekvll/effektprognoser.git
 cd effektprognoser
 ```
 
-#### Install the repository locally
+### 2. Install dependencies and configure
 
-To install the whole repository in one go:
+Run the installation script:
 
 ```bash
 ./scripts/install.sh
 ```
 
-Or if you prefer a step-by-step approach:
+This script will also run `/scripts/config.sh` to help you define or accept default data paths.
 
-First, create a virtual environment:
-
-```bash
-python3 -m venv .venv
-#or
-python -m venv .venv
-```
-
-and activate the environment:
-
-```bash
-source .venv/bin/activate
-```
-
-To install locally in normal mode:
-
-```bash
-pip install .
-```
-
-Or, to install locally in editable/development mode:
-
-```bash
-pip install -e .
-```
-
-Lastly, run the configuration script:
-
-```bash
-./scripts/config.sh
-```
-
-which tells you to define or accept the creation of various data paths.
-
-If you would need to re-define the path where SQLite data are kept you can do so manually in `ep/config.py`.
+> **Note:** If you need to change the location for SQLite data, edit `ep/config.py` manually.
 
 ---
 
-### Usage
+## ⚡ Usage
 
-#### Execute processing pipelines
+### Run the full data pipeline
 
-To run the whole pipeline, which begins with processing SQLite tables, and in the end outputs various products, type:
+Processes all stages, from SQLite tables to product outputs:
 
 ```bash
 ./scripts/all.sh
 ```
 
-To just process SQLite tables and save each table as a Parquet file, type:
+### Run specific pipelines
 
-```bash
-./scripts/sql2parquet.sh
-```
+- **Convert SQLite tables to Parquet files:**
+  ```bash
+  ./scripts/sql2parquet.sh
+  ```
+- **Process all Parquet files and generate output products:**
+  ```bash
+  ./scripts/parquet2products.sh
+  ```
 
-To just process all Parquet files and output various products, type:
+### List available processing steps
 
-```bash
-./scripts/parquet2products.sh
-```
-
-#### List all processing steps
-
-To list all available CLI commands:
+See all available CLI commands:
 
 ```bash
 ./scripts/list_processing_steps.sh
 ```
 
-which will output:
+Sample output:
 
 ```bash
 __init__
@@ -112,34 +89,58 @@ sql2parquet
 sql2parquet_chunk
 ```
 
-#### Run a single processing step
+### Run a single processing step
 
-First, activate the Python virtual environment:
+1. Activate the Python virtual environment:
+   ```bash
+   source .venv/bin/activate
+   ```
+2. Execute a single step (e.g. `sql2parquet`):
+   ```bash
+   python -m ep.cli.sql2parquet
+   ```
 
-```bash
-source .venv/bin/activate
-```
+---
 
-Thereafter, to run `sql2parquet`:
+## 🧪 Testing
 
-```bash
-python -m ep.cli.sql2parquet
-```
+End-to-end and unit tests are included.
 
-#### Tests
+1. **Download the test data set:**  
+   [Effektmodell_test.sqlite](https://nppd.se/effektprognoser/Effektmodell_test.sqlite)
 
-Tests include an end-to-end test. For this test to function you need the end-to-end data set which you can download [here](https://nppd.se/effektprognoser/Effektmodell_test.sqlite).
+2. **Place the file in:**
 
-To run implemented Python tests, simply
+   ```
+   data/_test/sqlite/Effektmodell_test/
+   ```
 
-```bash
-pytest
-```
+3. **Run all tests:**
+   ```bash
+   pytest
+   ```
 
-#### Run webmap in development mode
+---
+
+## 🗺️ Run the Webmap (Development)
+
+Start a local server to develop or view the webmap:
 
 ```bash
 live-server
 # or
 live-server index.html
 ```
+
+---
+
+## 📄 License
+
+[MIT](LICENSE)
+
+---
+
+## 🙌 Contributions
+
+Contributions and feedback are welcome!  
+Feel free to open an issue or submit a pull request.

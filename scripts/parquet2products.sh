@@ -1,5 +1,7 @@
 !#/bin/bash
 
+# Run all processing steps that start from Parquet files
+
 # Activate the Python virtual environment
 source .venv/bin/activate
 

@@ -1,5 +1,7 @@
 !#/bin/bash
 
+# Run the SQL to Parquet processes
+
 # Activate the Python virtual environment
 source .venv/bin/activate
 
